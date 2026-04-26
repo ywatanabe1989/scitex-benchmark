@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scitex-benchmark"
+version = "0.1.0"
+description = "Performance benchmarking, runtime monitoring, and profiling helpers — standalone module from the SciTeX ecosystem"
+readme = "README.md"
+license = "AGPL-3.0-only"
+requires-python = ">=3.9"
+authors = [{name = "Yusuke Watanabe", email = "ywatanabe@scitex.ai"}]
+keywords = ["scitex", "benchmark", "profiler", "monitor", "performance", "psutil"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Testing :: Benchmark",
+    "Topic :: System :: Monitoring",
+]
+dependencies = [
+    "psutil",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff"]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "myst-parser>=2.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-autodoc-typehints>=1.25",
+]
+all = ["scitex-benchmark[dev]", "scitex-benchmark[docs]"]
+
+[project.urls]
+Homepage = "https://github.com/ywatanabe1989/scitex-benchmark"
+Repository = "https://github.com/ywatanabe1989/scitex-benchmark"
+Documentation = "https://scitex-benchmark.readthedocs.io"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--disable-warnings"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]
+ignore = ["E501"]
