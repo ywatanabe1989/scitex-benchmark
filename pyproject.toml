@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scitex-benchmark"
-version = "0.1.0"
+version = "0.1.1"
 description = "Performance benchmarking, runtime monitoring, and profiling helpers — standalone module from the SciTeX ecosystem"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -19,6 +19,8 @@ classifiers = [
     "Topic :: System :: Monitoring",
 ]
 dependencies = [
+    "pandas",
+    "numpy",
     "psutil",
 ]
 
