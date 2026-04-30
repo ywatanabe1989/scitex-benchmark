@@ -5,8 +5,16 @@
 
 """scitex-benchmark — performance benchmarking + monitoring + profiling (standalone).
 
+This module provides tools for benchmarking and monitoring the performance
+of SciTeX functions.
+"""
+
+from __future__ import annotations
+
 try:
-    from importlib.metadata import version as _v, PackageNotFoundError
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version as _v
+
     try:
         __version__ = _v("scitex-benchmark")
     except PackageNotFoundError:
@@ -14,13 +22,6 @@ try:
     del _v, PackageNotFoundError
 except ImportError:  # pragma: no cover — only on ancient Pythons
     __version__ = "0.0.0+local"
-Original docstring follows:
-
-This module provides tools for benchmarking and monitoring the performance
-of SciTeX functions.
-"""
-
-from __future__ import annotations
 
 from .benchmark import (
     BenchmarkResult,
