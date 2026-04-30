@@ -20,6 +20,8 @@ This module provides tools for benchmarking and monitoring the performance
 of SciTeX functions.
 """
 
+from __future__ import annotations
+
 from .benchmark import (
     BenchmarkResult,
     BenchmarkSuite,
@@ -32,6 +34,7 @@ from .monitor import PerformanceMonitor, get_performance_stats, track_performanc
 from .profiler import get_profile_report, profile_function, profile_module
 
 __all__ = [
+    "__version__",
     # Benchmarking
     "benchmark_function",
     "benchmark_module",
