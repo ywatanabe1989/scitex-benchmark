@@ -79,7 +79,9 @@ the call site, but the core API works without them.
 
 ## Part of SciTeX
 
-`scitex-benchmark` is part of [**SciTeX**](https://scitex.ai).
+`scitex-benchmark` is part of [**SciTeX**](https://scitex.ai). Install via
+the umbrella with `pip install scitex[benchmark]` to use as
+`scitex.benchmark` (Python) or `scitex benchmark ...` (CLI).
 
 >Four Freedoms for Research
 >
