@@ -1,0 +1,24 @@
+scitex\_benchmark.benchmark
+===========================
+
+.. automodule:: scitex_benchmark.benchmark
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      benchmark_function
+      benchmark_module
+      compare_implementations
+      create_io_benchmark_suite
+      create_stats_benchmark_suite
+      run_all_benchmarks
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BenchmarkResult
+      BenchmarkSuite
+   

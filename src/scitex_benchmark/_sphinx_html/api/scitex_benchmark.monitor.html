@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scitex_benchmark.monitor &mdash; scitex-benchmark 0.1.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fd825880"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="scitex_benchmark.profiler" href="scitex_benchmark.profiler.html" />
+    <link rel="prev" title="scitex_benchmark.benchmark" href="scitex_benchmark.benchmark.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            scitex-benchmark
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="scitex_benchmark.html">scitex_benchmark</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.benchmark_function"><code class="docutils literal notranslate"><span class="pre">benchmark_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.benchmark_module"><code class="docutils literal notranslate"><span class="pre">benchmark_module()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.BenchmarkResult"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.BenchmarkSuite"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.run_all_benchmarks"><code class="docutils literal notranslate"><span class="pre">run_all_benchmarks()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.compare_implementations"><code class="docutils literal notranslate"><span class="pre">compare_implementations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.profile_function"><code class="docutils literal notranslate"><span class="pre">profile_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.profile_module"><code class="docutils literal notranslate"><span class="pre">profile_module()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.get_profile_report"><code class="docutils literal notranslate"><span class="pre">get_profile_report()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.PerformanceMonitor"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.track_performance"><code class="docutils literal notranslate"><span class="pre">track_performance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.get_performance_stats"><code class="docutils literal notranslate"><span class="pre">get_performance_stats()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.benchmark.html">scitex_benchmark.benchmark</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">scitex_benchmark.monitor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.timestamp"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.function"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.duration"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.duration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.memory_delta"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.memory_delta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.args_size"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.args_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.result_size"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.result_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric.exception"><code class="docutils literal notranslate"><span class="pre">PerformanceMetric.exception</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.start"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.stop"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.stop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.record_metric"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.record_metric()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.add_alert_callback"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.add_alert_callback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.get_stats"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.get_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.get_recent_metrics"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.get_recent_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.save_metrics"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.save_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.load_metrics"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.load_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor.clear"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor.clear()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.track_performance"><code class="docutils literal notranslate"><span class="pre">track_performance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.start_monitoring"><code class="docutils literal notranslate"><span class="pre">start_monitoring()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.stop_monitoring"><code class="docutils literal notranslate"><span class="pre">stop_monitoring()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.get_performance_stats"><code class="docutils literal notranslate"><span class="pre">get_performance_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.set_performance_alerts"><code class="docutils literal notranslate"><span class="pre">set_performance_alerts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.monitor.add_performance_alert_handler"><code class="docutils literal notranslate"><span class="pre">add_performance_alert_handler()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.profiler.html">scitex_benchmark.profiler</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">scitex-benchmark</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="scitex_benchmark.html">scitex_benchmark</a></li>
+      <li class="breadcrumb-item active">scitex_benchmark.monitor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/scitex_benchmark.monitor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-scitex_benchmark.monitor">
+<span id="scitex-benchmark-monitor"></span><h1>scitex_benchmark.monitor<a class="headerlink" href="#module-scitex_benchmark.monitor" title="Link to this heading"></a></h1>
+<p>Real-time performance monitoring for SciTeX.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.add_performance_alert_handler" title="scitex_benchmark.monitor.add_performance_alert_handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_performance_alert_handler</span></code></a>(handler)</p></td>
+<td><p>Add a handler for performance alerts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.get_performance_stats" title="scitex_benchmark.monitor.get_performance_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_performance_stats</span></code></a>([function])</p></td>
+<td><p>Get performance statistics from global monitor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.set_performance_alerts" title="scitex_benchmark.monitor.set_performance_alerts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_performance_alerts</span></code></a>(**thresholds)</p></td>
+<td><p>Set performance alert thresholds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.start_monitoring" title="scitex_benchmark.monitor.start_monitoring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_monitoring</span></code></a>()</p></td>
+<td><p>Start global performance monitoring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.stop_monitoring" title="scitex_benchmark.monitor.stop_monitoring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop_monitoring</span></code></a>()</p></td>
+<td><p>Stop global performance monitoring.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.track_performance" title="scitex_benchmark.monitor.track_performance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_performance</span></code></a>(func)</p></td>
+<td><p>Decorator to track function performance.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric" title="scitex_benchmark.monitor.PerformanceMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerformanceMetric</span></code></a>(timestamp, function, duration)</p></td>
+<td><p>Single performance measurement.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMonitor" title="scitex_benchmark.monitor.PerformanceMonitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerformanceMonitor</span></code></a>([max_history])</p></td>
+<td><p>Monitor performance metrics for SciTeX functions.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">PerformanceMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric" title="Link to this definition"></a></dt>
+<dd><p>Single performance measurement.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.timestamp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.function">
+<span class="sig-name descname"><span class="pre">function</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.function" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.duration">
+<span class="sig-name descname"><span class="pre">duration</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.duration" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.memory_delta">
+<span class="sig-name descname"><span class="pre">memory_delta</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.memory_delta" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.args_size">
+<span class="sig-name descname"><span class="pre">args_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.args_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.result_size">
+<span class="sig-name descname"><span class="pre">result_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.result_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMetric.exception">
+<span class="sig-name descname"><span class="pre">exception</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMetric.exception" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">PerformanceMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor" title="Link to this definition"></a></dt>
+<dd><p>Monitor performance metrics for SciTeX functions.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">monitor</span> <span class="o">=</span> <span class="n">PerformanceMonitor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">monitor</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Your code here</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stats</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">get_stats</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.start" title="Link to this definition"></a></dt>
+<dd><p>Start monitoring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.stop" title="Link to this definition"></a></dt>
+<dd><p>Stop monitoring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.record_metric">
+<span class="sig-name descname"><span class="pre">record_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.record_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.record_metric" title="Link to this definition"></a></dt>
+<dd><p>Record a performance metric.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.add_alert_callback">
+<span class="sig-name descname"><span class="pre">add_alert_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.add_alert_callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.add_alert_callback" title="Link to this definition"></a></dt>
+<dd><p>Add a callback for performance alerts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.get_stats">
+<span class="sig-name descname"><span class="pre">get_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.get_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.get_stats" title="Link to this definition"></a></dt>
+<dd><p>Get performance statistics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>function</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Specific function to get stats for</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Performance statistics</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.get_recent_metrics">
+<span class="sig-name descname"><span class="pre">get_recent_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.get_recent_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.get_recent_metrics" title="Link to this definition"></a></dt>
+<dd><p>Get n most recent metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#scitex_benchmark.monitor.PerformanceMetric" title="scitex_benchmark.monitor.PerformanceMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">PerformanceMetric</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.save_metrics">
+<span class="sig-name descname"><span class="pre">save_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.save_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.save_metrics" title="Link to this definition"></a></dt>
+<dd><p>Save metrics to file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.load_metrics">
+<span class="sig-name descname"><span class="pre">load_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.load_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.load_metrics" title="Link to this definition"></a></dt>
+<dd><p>Load metrics from file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.PerformanceMonitor.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#PerformanceMonitor.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.PerformanceMonitor.clear" title="Link to this definition"></a></dt>
+<dd><p>Clear all metrics.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.track_performance">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">track_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#track_performance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.track_performance" title="Link to this definition"></a></dt>
+<dd><p>Decorator to track function performance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a></span></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@track_performance</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.start_monitoring">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">start_monitoring</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#start_monitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.start_monitoring" title="Link to this definition"></a></dt>
+<dd><p>Start global performance monitoring.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.stop_monitoring">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">stop_monitoring</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#stop_monitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.stop_monitoring" title="Link to this definition"></a></dt>
+<dd><p>Stop global performance monitoring.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.get_performance_stats">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">get_performance_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#get_performance_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.get_performance_stats" title="Link to this definition"></a></dt>
+<dd><p>Get performance statistics from global monitor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.set_performance_alerts">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">set_performance_alerts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">thresholds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#set_performance_alerts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.set_performance_alerts" title="Link to this definition"></a></dt>
+<dd><p>Set performance alert thresholds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slow_function</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Alert if function takes longer than this (seconds)</p></li>
+<li><p><strong>memory_spike</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Alert if memory increases by more than this (MB)</p></li>
+<li><p><strong>error_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Alert if error rate exceeds this (0-1)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.monitor.add_performance_alert_handler">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.monitor.</span></span><span class="sig-name descname"><span class="pre">add_performance_alert_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/monitor.html#add_performance_alert_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.monitor.add_performance_alert_handler" title="Link to this definition"></a></dt>
+<dd><p>Add a handler for performance alerts.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">alert_handler</span><span class="p">(</span><span class="n">alert</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALERT: </span><span class="si">{</span><span class="n">alert</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">alert</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">add_performance_alert_handler</span><span class="p">(</span><span class="n">alert_handler</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="scitex_benchmark.benchmark.html" class="btn btn-neutral float-left" title="scitex_benchmark.benchmark" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="scitex_benchmark.profiler.html" class="btn btn-neutral float-right" title="scitex_benchmark.profiler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Yusuke Watanabe.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

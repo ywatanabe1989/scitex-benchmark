@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scitex_benchmark.benchmark &mdash; scitex-benchmark 0.1.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fd825880"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="scitex_benchmark.monitor" href="scitex_benchmark.monitor.html" />
+    <link rel="prev" title="scitex_benchmark" href="scitex_benchmark.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            scitex-benchmark
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="scitex_benchmark.html">scitex_benchmark</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.benchmark_function"><code class="docutils literal notranslate"><span class="pre">benchmark_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.benchmark_module"><code class="docutils literal notranslate"><span class="pre">benchmark_module()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.BenchmarkResult"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.BenchmarkSuite"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.run_all_benchmarks"><code class="docutils literal notranslate"><span class="pre">run_all_benchmarks()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.compare_implementations"><code class="docutils literal notranslate"><span class="pre">compare_implementations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.profile_function"><code class="docutils literal notranslate"><span class="pre">profile_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.profile_module"><code class="docutils literal notranslate"><span class="pre">profile_module()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.get_profile_report"><code class="docutils literal notranslate"><span class="pre">get_profile_report()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.PerformanceMonitor"><code class="docutils literal notranslate"><span class="pre">PerformanceMonitor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.track_performance"><code class="docutils literal notranslate"><span class="pre">track_performance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.html#scitex_benchmark.get_performance_stats"><code class="docutils literal notranslate"><span class="pre">get_performance_stats()</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">scitex_benchmark.benchmark</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.function_name"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.function_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.module"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.module</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.mean_time"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.mean_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.std_time"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.std_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.min_time"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.min_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.max_time"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.max_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.iterations"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.input_size"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.input_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.memory_usage"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.memory_usage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.notes"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.notes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult.to_dict"><code class="docutils literal notranslate"><span class="pre">BenchmarkResult.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.benchmark_function"><code class="docutils literal notranslate"><span class="pre">benchmark_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.compare_implementations"><code class="docutils literal notranslate"><span class="pre">compare_implementations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite.add_benchmark"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite.add_benchmark()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite.run"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite.save_results"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite.save_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite.compare_with_baseline"><code class="docutils literal notranslate"><span class="pre">BenchmarkSuite.compare_with_baseline()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.benchmark_module"><code class="docutils literal notranslate"><span class="pre">benchmark_module()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.create_io_benchmark_suite"><code class="docutils literal notranslate"><span class="pre">create_io_benchmark_suite()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.create_stats_benchmark_suite"><code class="docutils literal notranslate"><span class="pre">create_stats_benchmark_suite()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_benchmark.benchmark.run_all_benchmarks"><code class="docutils literal notranslate"><span class="pre">run_all_benchmarks()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.monitor.html">scitex_benchmark.monitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitex_benchmark.profiler.html">scitex_benchmark.profiler</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">scitex-benchmark</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="scitex_benchmark.html">scitex_benchmark</a></li>
+      <li class="breadcrumb-item active">scitex_benchmark.benchmark</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/scitex_benchmark.benchmark.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-scitex_benchmark.benchmark">
+<span id="scitex-benchmark-benchmark"></span><h1>scitex_benchmark.benchmark<a class="headerlink" href="#module-scitex_benchmark.benchmark" title="Link to this heading"></a></h1>
+<p>Core benchmarking functionality for SciTeX.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.benchmark_function" title="scitex_benchmark.benchmark.benchmark_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">benchmark_function</span></code></a>(func[, args, kwargs, ...])</p></td>
+<td><p>Benchmark a single function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.benchmark_module" title="scitex_benchmark.benchmark.benchmark_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">benchmark_module</span></code></a>(module_name[, pattern])</p></td>
+<td><p>Create a benchmark suite for all matching functions in a module.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.compare_implementations" title="scitex_benchmark.benchmark.compare_implementations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compare_implementations</span></code></a>(implementations, ...)</p></td>
+<td><p>Compare multiple implementations of the same functionality.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.create_io_benchmark_suite" title="scitex_benchmark.benchmark.create_io_benchmark_suite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_io_benchmark_suite</span></code></a>()</p></td>
+<td><p>Create benchmark suite for I/O operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.create_stats_benchmark_suite" title="scitex_benchmark.benchmark.create_stats_benchmark_suite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_stats_benchmark_suite</span></code></a>()</p></td>
+<td><p>Create benchmark suite for statistics operations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.run_all_benchmarks" title="scitex_benchmark.benchmark.run_all_benchmarks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_all_benchmarks</span></code></a>([output_dir])</p></td>
+<td><p>Run all pre-defined benchmark suites.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult" title="scitex_benchmark.benchmark.BenchmarkResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BenchmarkResult</span></code></a>(function_name, module, ...)</p></td>
+<td><p>Results from a benchmark run.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite" title="scitex_benchmark.benchmark.BenchmarkSuite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a>(name)</p></td>
+<td><p>Collection of benchmarks for a module or set of functions.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">BenchmarkResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_usage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult" title="Link to this definition"></a></dt>
+<dd><p>Results from a benchmark run.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.function_name">
+<span class="sig-name descname"><span class="pre">function_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.function_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.module">
+<span class="sig-name descname"><span class="pre">module</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.module" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.mean_time">
+<span class="sig-name descname"><span class="pre">mean_time</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.mean_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.std_time">
+<span class="sig-name descname"><span class="pre">std_time</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.std_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.min_time">
+<span class="sig-name descname"><span class="pre">min_time</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.min_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.max_time">
+<span class="sig-name descname"><span class="pre">max_time</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.max_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.iterations">
+<span class="sig-name descname"><span class="pre">iterations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.iterations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.input_size">
+<span class="sig-name descname"><span class="pre">input_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.input_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.memory_usage">
+<span class="sig-name descname"><span class="pre">memory_usage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.memory_usage" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.notes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkResult.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkResult.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkResult.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Convert to dictionary for easy serialization.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.benchmark_function">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">benchmark_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#benchmark_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.benchmark_function" title="Link to this definition"></a></dt>
+<dd><p>Benchmark a single function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – Function to benchmark</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – Arguments to pass to function</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keyword arguments to pass to function</p></li>
+<li><p><strong>iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of benchmark iterations</p></li>
+<li><p><strong>warmup</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of warmup iterations</p></li>
+<li><p><strong>input_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Description of input size</p></li>
+<li><p><strong>measure_memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to measure memory usage</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Benchmark results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkResult" title="scitex_benchmark.benchmark.BenchmarkResult">BenchmarkResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.compare_implementations">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">compare_implementations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">implementations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#compare_implementations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.compare_implementations" title="Link to this definition"></a></dt>
+<dd><p>Compare multiple implementations of the same functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>implementations</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary mapping implementation names to functions</p></li>
+<li><p><strong>test_data_generator</strong> (<em>callable</em>) – Function that returns (args, kwargs) for testing</p></li>
+<li><p><strong>iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of iterations per implementation</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – List of input sizes to test</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Comparison results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkSuite">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">BenchmarkSuite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkSuite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkSuite" title="Link to this definition"></a></dt>
+<dd><p>Collection of benchmarks for a module or set of functions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkSuite.add_benchmark">
+<span class="sig-name descname"><span class="pre">add_benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkSuite.add_benchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkSuite.add_benchmark" title="Link to this definition"></a></dt>
+<dd><p>Add a benchmark to the suite.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkSuite.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkSuite.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkSuite.run" title="Link to this definition"></a></dt>
+<dd><p>Run all benchmarks in the suite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkSuite.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkSuite.save_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkSuite.save_results" title="Link to this definition"></a></dt>
+<dd><p>Save benchmark results to CSV.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.BenchmarkSuite.compare_with_baseline">
+<span class="sig-name descname"><span class="pre">compare_with_baseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#BenchmarkSuite.compare_with_baseline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.BenchmarkSuite.compare_with_baseline" title="Link to this definition"></a></dt>
+<dd><p>Compare current results with baseline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.benchmark_module">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">benchmark_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'test_*'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#benchmark_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.benchmark_module" title="Link to this definition"></a></dt>
+<dd><p>Create a benchmark suite for all matching functions in a module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>module_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of module to benchmark</p></li>
+<li><p><strong>pattern</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Pattern to match function names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Suite containing all matching benchmarks</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite" title="scitex_benchmark.benchmark.BenchmarkSuite">BenchmarkSuite</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.create_io_benchmark_suite">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">create_io_benchmark_suite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#create_io_benchmark_suite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.create_io_benchmark_suite" title="Link to this definition"></a></dt>
+<dd><p>Create benchmark suite for I/O operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite" title="scitex_benchmark.benchmark.BenchmarkSuite"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.create_stats_benchmark_suite">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">create_stats_benchmark_suite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#create_stats_benchmark_suite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.create_stats_benchmark_suite" title="Link to this definition"></a></dt>
+<dd><p>Create benchmark suite for statistics operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitex_benchmark.benchmark.BenchmarkSuite" title="scitex_benchmark.benchmark.BenchmarkSuite"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkSuite</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scitex_benchmark.benchmark.run_all_benchmarks">
+<span class="sig-prename descclassname"><span class="pre">scitex_benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">run_all_benchmarks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./benchmark_results'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_benchmark/benchmark.html#run_all_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_benchmark.benchmark.run_all_benchmarks" title="Link to this definition"></a></dt>
+<dd><p>Run all pre-defined benchmark suites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Directory to save results</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary mapping suite names to results</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="scitex_benchmark.html" class="btn btn-neutral float-left" title="scitex_benchmark" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="scitex_benchmark.monitor.html" class="btn btn-neutral float-right" title="scitex_benchmark.monitor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Yusuke Watanabe.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
