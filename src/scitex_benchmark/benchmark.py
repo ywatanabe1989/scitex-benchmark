@@ -324,8 +324,7 @@ def create_io_benchmark_suite() -> BenchmarkSuite:
             np.save(f.name, data)
             return (f.name,), {}
 
-    import scitex.io
-
+    import scitex_io as scitex_io
     suite.add_benchmark(
         scitex.io.load, numpy_data_gen, "load_numpy", sizes=["1MB", "10MB", "100MB"]
     )
@@ -345,8 +344,7 @@ def create_stats_benchmark_suite() -> BenchmarkSuite:
         y = x + np.random.randn(1000) * 0.5
         return (x, y), {"n_perm": 1000}
 
-    import scitex.stats
-
+    import scitex_stats as scitex_stats
     suite.add_benchmark(
         scitex.stats.corr_test,
         corr_data_gen,
