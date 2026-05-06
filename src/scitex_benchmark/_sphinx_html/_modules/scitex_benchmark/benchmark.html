@@ -433,8 +433,7 @@
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,),</span> <span class="p">{}</span>
 
-    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex.io</span>
-
+    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scitex_io</span>
     <span class="n">suite</span><span class="o">.</span><span class="n">add_benchmark</span><span class="p">(</span>
         <span class="n">scitex</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">numpy_data_gen</span><span class="p">,</span> <span class="s2">&quot;load_numpy&quot;</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1MB&quot;</span><span class="p">,</span> <span class="s2">&quot;10MB&quot;</span><span class="p">,</span> <span class="s2">&quot;100MB&quot;</span><span class="p">]</span>
     <span class="p">)</span>
@@ -457,8 +456,7 @@
         <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">{</span><span class="s2">&quot;n_perm&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}</span>
 
-    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex.stats</span>
-
+    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex_stats</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scitex_stats</span>
     <span class="n">suite</span><span class="o">.</span><span class="n">add_benchmark</span><span class="p">(</span>
         <span class="n">scitex</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">corr_test</span><span class="p">,</span>
         <span class="n">corr_data_gen</span><span class="p">,</span>
