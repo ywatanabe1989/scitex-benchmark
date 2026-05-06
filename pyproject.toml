@@ -22,7 +22,6 @@ dependencies = [
     "pandas",
     "numpy",
     "psutil",
-    "scitex",
 ]
 
 [project.optional-dependencies]
