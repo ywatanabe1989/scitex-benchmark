@@ -32,6 +32,29 @@
 pip install scitex-benchmark
 ```
 
+## Architecture
+
+```
+src/scitex_benchmark/
+├── benchmark.py     # high-level benchmark() runner + statistical comparisons
+├── profiler.py      # Profiler context manager (wall-clock + memory)
+├── monitor.py       # long-running resource monitor (CPU/RAM/GPU)
+└── _skills/         # SciTeX skills metadata
+```
+
+## Demo
+
+```mermaid
+flowchart LR
+    Code[user code] --> P[Profiler ctx]
+    Code --> B[benchmark - repeated runs]
+    Code --> M[Monitor - long runs]
+    P --> Stats[wall-clock + RSS]
+    B --> Stats
+    M --> Stats
+    Stats --> Report[summary - DataFrame / CSV]
+```
+
 ## Quick Start
 
 ```python
