@@ -9,7 +9,7 @@
 <p align="center"><b>Performance benchmarking, runtime monitoring, and profiling helpers.</b></p>
 
 <p align="center">
-  <a href="https://scitex-benchmark.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-benchmark</code>
+  <a href="https://scitex-benchmark.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-benchmark[all]</code>
 </p>
 
 <!-- scitex-badges:start -->
