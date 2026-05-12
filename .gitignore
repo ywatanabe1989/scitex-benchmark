@@ -18,3 +18,10 @@ docs/sphinx/_build/
 docs/sphinx/api/
 *.swp
 .DS_Store
+.venv-agent/
+
+# .scitex/ local state: tracked exception for dev/config.yaml only
+.scitex/*
+!.scitex/dev/
+.scitex/dev/*
+!.scitex/dev/config.yaml

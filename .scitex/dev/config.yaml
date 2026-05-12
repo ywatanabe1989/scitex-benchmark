@@ -1,0 +1,9 @@
+# scitex-dev audit configuration for scitex-benchmark.
+#
+# This file is tracked in git (see .gitignore exception) so that
+# `scitex-dev ecosystem audit-all` runs identically in CI and locally.
+
+audit:
+  root-whitelist:
+    files:
+      - codecov.yml

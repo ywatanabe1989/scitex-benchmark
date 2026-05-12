@@ -60,6 +60,11 @@ scitex-benchmark = "scitex_benchmark"
 testpaths = ["tests"]
 addopts = ["--disable-warnings"]
 
+[tool.coverage.run]
+parallel = true
+source = ["scitex_benchmark"]
+concurrency = ["multiprocessing", "thread"]
+
 [tool.ruff]
 target-version = "py39"
 line-length = 88
