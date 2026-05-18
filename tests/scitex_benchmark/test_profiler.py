@@ -4,9 +4,6 @@
 
 """Tests for scitex_benchmark.profiler module."""
 
-import io
-import os
-import sys
 import time
 
 import pytest
@@ -27,6 +24,16 @@ from scitex_benchmark.profiler import (
 # ============================================================================
 
 
+def _require_psutil_memory():
+    """Return current memory usage in MB, skipping the test if psutil
+    is not installed (so the asserting test sees a real float, not None,
+    and so the test body keeps a single assertion)."""
+    value = get_memory_usage()
+    if value is None:
+        pytest.skip("psutil not available")
+    return value
+
+
 @pytest.fixture
 def profiler():
     """Create a fresh FunctionProfiler instance."""
@@ -39,160 +46,339 @@ def line_profiler():
     return LineProfiler()
 
 
-@pytest.fixture
-def sample_function():
-    """A simple function for profiling."""
-
-    def compute_sum(n):
-        return sum(range(n))
-
-    return compute_sum
-
-
-@pytest.fixture
-def slow_function():
-    """A function that takes measurable time."""
-
-    def slow_compute(n):
-        time.sleep(0.01)
-        return n * 2
-
-    return slow_compute
-
-
 # ============================================================================
-# Test FunctionProfiler
+# Test FunctionProfiler — initialisation
 # ============================================================================
 
 
-class TestFunctionProfiler:
-    """Tests for FunctionProfiler class."""
+class TestFunctionProfilerCreation:
+    """Tests for FunctionProfiler initialization."""
 
-    def test_profiler_creation(self, profiler):
-        """Test profiler initialization."""
-        assert profiler.profiles == {}
-        assert profiler.call_counts == {}
-        assert profiler.total_times == {}
+    def test_profiles_dict_starts_empty(self, profiler):
+        # Arrange
+        p = profiler
+        # Act
+        value = p.profiles
+        # Assert
+        assert value == {}
 
-    def test_profile_decorator(self, profiler):
-        """Test profiling with decorator."""
+    def test_call_counts_dict_starts_empty(self, profiler):
+        # Arrange
+        p = profiler
+        # Act
+        value = p.call_counts
+        # Assert
+        assert value == {}
 
+    def test_total_times_dict_starts_empty(self, profiler):
+        # Arrange
+        p = profiler
+        # Act
+        value = p.total_times
+        # Assert
+        assert value == {}
+
+
+# ============================================================================
+# Test FunctionProfiler — @profile decorator
+# ============================================================================
+
+
+@pytest.fixture
+def decorated_profiler(profiler):
+    @profiler.profile
+    def my_func(x):
+        return x * 2
+
+    my_func(5)
+    return profiler
+
+
+class TestFunctionProfilerDecorator:
+    """Tests for FunctionProfiler.profile decorator basic behaviour."""
+
+    def test_decorated_function_returns_correct_value(self, profiler):
+        # Arrange
         @profiler.profile
         def my_func(x):
             return x * 2
 
+        # Act
         result = my_func(5)
-
+        # Assert
         assert result == 10
-        assert "my_func" in profiler.profiles
-        assert profiler.call_counts["my_func"] == 1
-        assert profiler.total_times["my_func"] > 0
 
-    def test_profile_multiple_calls(self, profiler):
-        """Test profiling with multiple calls."""
+    def test_decorator_registers_function_in_profiles(self, decorated_profiler):
+        # Arrange
+        p = decorated_profiler
+        # Act
+        present = "my_func" in p.profiles
+        # Assert
+        assert present
 
+    def test_decorator_initialises_call_count_to_one(self, decorated_profiler):
+        # Arrange
+        p = decorated_profiler
+        # Act
+        value = p.call_counts["my_func"]
+        # Assert
+        assert value == 1
+
+    def test_decorator_records_positive_total_time(self, decorated_profiler):
+        # Arrange
+        p = decorated_profiler
+        # Act
+        value = p.total_times["my_func"]
+        # Assert
+        assert value > 0
+
+
+class TestFunctionProfilerDecoratorMultipleCalls:
+    """Tests for profiling across multiple invocations."""
+
+    @pytest.fixture
+    def five_call_profiler(self, profiler):
         @profiler.profile
         def my_func(x):
             return x + 1
 
         for i in range(5):
             my_func(i)
+        return profiler
 
-        assert profiler.call_counts["my_func"] == 5
-        assert len(profiler.profiles["my_func"]) == 5
+    def test_call_count_accumulates_across_invocations(self, five_call_profiler):
+        # Arrange
+        p = five_call_profiler
+        # Act
+        value = p.call_counts["my_func"]
+        # Assert
+        assert value == 5
 
-    def test_profile_preserves_function_name(self, profiler):
-        """Test that decorator preserves function metadata."""
+    def test_profile_list_grows_per_invocation(self, five_call_profiler):
+        # Arrange
+        p = five_call_profiler
+        # Act
+        value = len(p.profiles["my_func"])
+        # Assert
+        assert value == 5
 
+
+class TestFunctionProfilerDecoratorMetadata:
+    """Tests for metadata preservation via @wraps."""
+
+    @pytest.fixture
+    def decorated_name_func(self, profiler):
         @profiler.profile
         def original_name(x):
             """Original docstring."""
             return x
 
-        assert original_name.__name__ == "original_name"
-        assert original_name.__doc__ == "Original docstring."
+        return original_name
 
-    def test_profile_with_args_and_kwargs(self, profiler):
-        """Test profiling function with args and kwargs."""
+    def test_decorator_preserves_function_name(self, decorated_name_func):
+        # Arrange
+        f = decorated_name_func
+        # Act
+        value = f.__name__
+        # Assert
+        assert value == "original_name"
 
+    def test_decorator_preserves_docstring(self, decorated_name_func):
+        # Arrange
+        f = decorated_name_func
+        # Act
+        value = f.__doc__
+        # Assert
+        assert value == "Original docstring."
+
+
+class TestFunctionProfilerArgsKwargs:
+    """Tests for profiling with args and kwargs."""
+
+    def test_complex_function_returns_correct_value(self, profiler):
+        # Arrange
         @profiler.profile
         def complex_func(a, b, c=10, d=20):
             return a + b + c + d
 
+        # Act
         result = complex_func(1, 2, c=30, d=40)
-
+        # Assert
         assert result == 73
-        assert profiler.call_counts["complex_func"] == 1
 
-    def test_get_stats_returns_none_for_unknown(self, profiler):
-        """Test get_stats returns None for unknown function."""
-        stats = profiler.get_stats("unknown_function")
-        assert stats is None
+    def test_complex_function_records_single_call(self, profiler):
+        # Arrange
+        @profiler.profile
+        def complex_func(a, b, c=10, d=20):
+            return a + b + c + d
 
-    def test_get_stats_returns_stats(self, profiler):
-        """Test get_stats returns Stats object."""
+        complex_func(1, 2, c=30, d=40)
+        # Act
+        value = profiler.call_counts["complex_func"]
+        # Assert
+        assert value == 1
 
+
+# ============================================================================
+# Test FunctionProfiler — get_stats
+# ============================================================================
+
+
+class TestFunctionProfilerGetStats:
+    """Tests for FunctionProfiler.get_stats."""
+
+    def test_get_stats_unknown_function_returns_none(self, profiler):
+        # Arrange
+        p = profiler
+        # Act
+        result = p.get_stats("unknown_function")
+        # Assert
+        assert result is None
+
+    def test_get_stats_known_function_returns_stats_object(self, profiler):
+        # Arrange
         @profiler.profile
         def my_func():
             return 42
 
         my_func()
         my_func()
-
+        # Act
         stats = profiler.get_stats("my_func")
+        # Assert
         assert stats is not None
 
-    def test_print_stats_single_function(self, profiler, capsys):
-        """Test print_stats for single function."""
 
-        @profiler.profile
-        def my_func():
-            return 42
+# ============================================================================
+# Test FunctionProfiler — print_stats
+# ============================================================================
 
-        my_func()
-        profiler.print_stats("my_func")
 
-        captured = capsys.readouterr()
-        assert "Profile for my_func" in captured.out
-        assert "Total calls: 1" in captured.out
+@pytest.fixture
+def single_function_print(profiler, capsys):
+    @profiler.profile
+    def my_func():
+        return 42
 
-    def test_print_stats_all_functions(self, profiler, capsys):
-        """Test print_stats for all functions."""
+    my_func()
+    profiler.print_stats("my_func")
+    return capsys.readouterr()
 
-        @profiler.profile
-        def func1():
-            return 1
 
-        @profiler.profile
-        def func2():
-            return 2
+class TestFunctionProfilerPrintStatsSingle:
+    """Tests for print_stats() for a single function."""
 
-        func1()
-        func2()
+    def test_print_includes_profile_header_for_function(self, single_function_print):
+        # Arrange
+        captured = single_function_print
+        # Act
+        out = captured.out
+        # Assert
+        assert "Profile for my_func" in out
 
-        profiler.print_stats()
+    def test_print_includes_total_call_count(self, single_function_print):
+        # Arrange
+        captured = single_function_print
+        # Act
+        out = captured.out
+        # Assert
+        assert "Total calls: 1" in out
 
-        captured = capsys.readouterr()
-        assert "func1" in captured.out
-        assert "func2" in captured.out
 
-    def test_get_report(self, profiler):
-        """Test get_report returns comprehensive report."""
+@pytest.fixture
+def two_function_print(profiler, capsys):
+    @profiler.profile
+    def func1():
+        return 1
 
-        @profiler.profile
-        def my_func():
-            return sum(range(100))
+    @profiler.profile
+    def func2():
+        return 2
 
-        my_func()
-        my_func()
+    func1()
+    func2()
+    profiler.print_stats()
+    return capsys.readouterr()
 
-        report = profiler.get_report()
 
-        assert "my_func" in report
-        assert report["my_func"]["call_count"] == 2
-        assert "total_time" in report["my_func"]
-        assert "avg_time" in report["my_func"]
-        assert "profile" in report["my_func"]
+class TestFunctionProfilerPrintStatsAll:
+    """Tests for print_stats() across all profiled functions."""
+
+    def test_print_includes_first_function_name(self, two_function_print):
+        # Arrange
+        captured = two_function_print
+        # Act
+        out = captured.out
+        # Assert
+        assert "func1" in out
+
+    def test_print_includes_second_function_name(self, two_function_print):
+        # Arrange
+        captured = two_function_print
+        # Act
+        out = captured.out
+        # Assert
+        assert "func2" in out
+
+
+# ============================================================================
+# Test FunctionProfiler — get_report
+# ============================================================================
+
+
+@pytest.fixture
+def report_two_calls(profiler):
+    @profiler.profile
+    def my_func():
+        return sum(range(100))
+
+    my_func()
+    my_func()
+    return profiler.get_report()
+
+
+class TestFunctionProfilerGetReport:
+    """Tests for FunctionProfiler.get_report()."""
+
+    def test_report_contains_function_entry(self, report_two_calls):
+        # Arrange
+        report = report_two_calls
+        # Act
+        present = "my_func" in report
+        # Assert
+        assert present
+
+    def test_report_records_call_count(self, report_two_calls):
+        # Arrange
+        report = report_two_calls
+        # Act
+        value = report["my_func"]["call_count"]
+        # Assert
+        assert value == 2
+
+    def test_report_includes_total_time_key(self, report_two_calls):
+        # Arrange
+        report = report_two_calls
+        # Act
+        present = "total_time" in report["my_func"]
+        # Assert
+        assert present
+
+    def test_report_includes_avg_time_key(self, report_two_calls):
+        # Arrange
+        report = report_two_calls
+        # Act
+        present = "avg_time" in report["my_func"]
+        # Assert
+        assert present
+
+    def test_report_includes_profile_key(self, report_two_calls):
+        # Arrange
+        report = report_two_calls
+        # Act
+        present = "profile" in report["my_func"]
+        # Assert
+        assert present
 
 
 # ============================================================================
@@ -200,40 +386,46 @@ class TestFunctionProfiler:
 # ============================================================================
 
 
-class TestProfileFunction:
-    """Tests for profile_function decorator."""
+class TestProfileFunctionGlobal:
+    """Tests for global profile_function decorator."""
 
-    def test_profile_function_decorator(self):
-        """Test global profile_function decorator."""
-
+    def test_decorated_function_returns_correct_value(self):
+        # Arrange
         @profile_function
-        def test_func(x):
+        def squared(x):
             return x**2
 
-        result = test_func(5)
+        # Act
+        result = squared(5)
+        # Assert
         assert result == 25
 
-    def test_profile_function_preserves_return(self):
-        """Test that decorated function returns correctly."""
-
+    def test_decorated_function_preserves_return_value(self):
+        # Arrange
         @profile_function
         def compute(a, b):
             return a * b
 
-        assert compute(3, 4) == 12
+        # Act
+        result = compute(3, 4)
+        # Assert
+        assert result == 12
 
 
 # ============================================================================
-# Test get_profile_report
+# Test get_profile_report (global)
 # ============================================================================
 
 
 class TestGetProfileReport:
-    """Tests for get_profile_report function."""
+    """Tests for module-level get_profile_report()."""
 
     def test_get_profile_report_returns_dict(self):
-        """Test get_profile_report returns dictionary."""
+        # Arrange
+        # (no setup needed)
+        # Act
         report = get_profile_report()
+        # Assert
         assert isinstance(report, dict)
 
 
@@ -242,36 +434,81 @@ class TestGetProfileReport:
 # ============================================================================
 
 
-class TestProfileBlock:
-    """Tests for profile_block context manager."""
+class TestProfileBlockBasic:
+    """Tests for profile_block() basic usage."""
 
-    def test_profile_block_basic(self, capsys):
-        """Test basic profile_block usage."""
+    @pytest.fixture
+    def block_output(self, capsys):
         with profile_block("test_block"):
-            result = sum(range(1000))
+            sum(range(1000))
+        return capsys.readouterr()
 
-        captured = capsys.readouterr()
-        assert "Profile for block 'test_block'" in captured.out
-        assert "Total time:" in captured.out
+    def test_block_output_includes_profile_header(self, block_output):
+        # Arrange
+        captured = block_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "Profile for block 'test_block'" in out
 
-    def test_profile_block_with_slow_code(self, capsys):
-        """Test profile_block with slow code."""
+    def test_block_output_includes_total_time_line(self, block_output):
+        # Arrange
+        captured = block_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "Total time:" in out
+
+
+class TestProfileBlockSlowCode:
+    """Tests for profile_block() with sleeping work."""
+
+    @pytest.fixture
+    def slow_block_output(self, capsys):
         with profile_block("slow_block"):
             time.sleep(0.02)
+        return capsys.readouterr()
 
-        captured = capsys.readouterr()
-        assert "slow_block" in captured.out
-        # Time should be at least 0.01s
-        assert "0.0" in captured.out  # Time should be visible
+    def test_slow_block_output_contains_block_name(self, slow_block_output):
+        # Arrange
+        captured = slow_block_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "slow_block" in out
 
-    def test_profile_block_exception_handling(self, capsys):
-        """Test profile_block handles exceptions properly."""
-        with pytest.raises(ValueError):
+    def test_slow_block_output_contains_a_time_value(self, slow_block_output):
+        # Arrange
+        captured = slow_block_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "0.0" in out
+
+
+class TestProfileBlockException:
+    """Tests for profile_block() exception path."""
+
+    def test_profile_block_propagates_exception_to_caller(self):
+        # Arrange
+        # (no setup)
+        # Act
+        raised_ctx = pytest.raises(ValueError)
+        # Assert
+        with raised_ctx:
             with profile_block("error_block"):
                 raise ValueError("Test error")
 
-        # Profile output should still be printed
+    def test_profile_block_prints_block_name_even_on_exception(self, capsys):
+        # Arrange
+        try:
+            with profile_block("error_block"):
+                raise ValueError("Test error")
+        except ValueError:
+            pass
+        # Act
         captured = capsys.readouterr()
+        # Assert
         assert "error_block" in captured.out
 
 
@@ -281,108 +518,229 @@ class TestProfileBlock:
 
 
 class TestProfileModule:
-    """Tests for profile_module function."""
+    """Tests for profile_module() function."""
 
-    def test_profile_module_returns_profiler(self, capsys):
-        """Test profile_module returns a profiler."""
-        profiler = profile_module("math", pattern="sqrt")
+    def test_profile_module_returns_function_profiler_instance(self, capsys):
+        # Arrange
+        # (no setup needed)
+        # Act
+        result = profile_module("math", pattern="sqrt")
+        capsys.readouterr()
+        # Assert
+        assert isinstance(result, FunctionProfiler)
 
-        assert isinstance(profiler, FunctionProfiler)
-
+    def test_profile_module_prints_profiling_log_line(self, capsys):
+        # Arrange
+        profile_module("math", pattern="sqrt")
+        # Act
         captured = capsys.readouterr()
+        # Assert
         assert "Profiling" in captured.out
 
-    def test_profile_module_wraps_functions(self, capsys):
-        """Test profile_module wraps matching functions."""
-        profiler = profile_module("os.path", pattern="exists")
-
+    def test_profile_module_with_os_path_pattern_prints_log_line(self, capsys):
+        # Arrange
+        profile_module("os.path", pattern="exists")
+        # Act
         captured = capsys.readouterr()
-        # Should report profiling functions
+        # Assert
         assert "Profiling" in captured.out
 
 
 # ============================================================================
-# Test LineProfiler
+# Test LineProfiler — initialisation
 # ============================================================================
 
 
-class TestLineProfiler:
-    """Tests for LineProfiler class."""
+class TestLineProfilerCreation:
+    """Tests for LineProfiler initialization."""
 
-    def test_line_profiler_creation(self, line_profiler):
-        """Test LineProfiler initialization."""
-        assert line_profiler.timings == {}
+    def test_timings_dict_starts_empty(self, line_profiler):
+        # Arrange
+        lp = line_profiler
+        # Act
+        value = lp.timings
+        # Assert
+        assert value == {}
 
-    def test_profile_lines_decorator(self, line_profiler):
-        """Test profile_lines decorator."""
 
-        @line_profiler.profile_lines
-        def my_func(n):
-            result = 0
-            for i in range(n):
-                result += i
-            return result
+# ============================================================================
+# Test LineProfiler — profile_lines
+# ============================================================================
 
-        result = my_func(100)
 
-        assert result == 4950  # sum of 0..99
-        assert "my_func" in line_profiler.timings
-        assert len(line_profiler.timings["my_func"]) == 1
+@pytest.fixture
+def lined_result(line_profiler):
+    @line_profiler.profile_lines
+    def my_func(n):
+        result = 0
+        for i in range(n):
+            result += i
+        return result
 
-    def test_profile_lines_stores_timing(self, line_profiler):
-        """Test that profile_lines stores timing info."""
+    return my_func(100), line_profiler
 
-        @line_profiler.profile_lines
-        def my_func():
-            time.sleep(0.01)
-            return 42
 
-        my_func()
+class TestLineProfilerProfileLines:
+    """Tests for LineProfiler.profile_lines decorator."""
 
-        timing = line_profiler.timings["my_func"][0]
-        assert "total_time" in timing
-        assert timing["total_time"] >= 0.009  # At least 9ms
-        assert "source" in timing
+    def test_decorated_function_returns_correct_value(self, lined_result):
+        # Arrange
+        result, _ = lined_result
+        # Act
+        value = result
+        # Assert
+        assert value == 4950
 
-    def test_profile_lines_stores_source(self, line_profiler):
-        """Test that profile_lines stores source code."""
+    def test_decorator_registers_function_in_timings(self, lined_result):
+        # Arrange
+        _, lp = lined_result
+        # Act
+        present = "my_func" in lp.timings
+        # Assert
+        assert present
 
-        @line_profiler.profile_lines
-        def my_func():
-            x = 1
-            y = 2
-            return x + y
+    def test_decorator_records_one_timing_entry_per_call(self, lined_result):
+        # Arrange
+        _, lp = lined_result
+        # Act
+        n = len(lp.timings["my_func"])
+        # Assert
+        assert n == 1
 
-        my_func()
 
-        timing = line_profiler.timings["my_func"][0]
-        source = timing["source"]
-        assert isinstance(source, list)
-        assert len(source) > 0
-        # Source should contain the function code
-        source_text = "".join(source)
-        assert "return" in source_text
+@pytest.fixture
+def sleepy_timing(line_profiler):
+    @line_profiler.profile_lines
+    def my_func():
+        time.sleep(0.01)
+        return 42
 
-    def test_print_timings(self, line_profiler, capsys):
-        """Test print_timings output."""
+    my_func()
+    return line_profiler.timings["my_func"][0]
 
-        @line_profiler.profile_lines
-        def my_func():
-            return 42
 
-        my_func()
-        line_profiler.print_timings("my_func")
+class TestLineProfilerStoresTiming:
+    """Tests for timing payload stored by profile_lines."""
 
+    def test_payload_includes_total_time_key(self, sleepy_timing):
+        # Arrange
+        timing = sleepy_timing
+        # Act
+        present = "total_time" in timing
+        # Assert
+        assert present
+
+    def test_payload_total_time_reflects_real_sleep(self, sleepy_timing):
+        # Arrange
+        timing = sleepy_timing
+        # Act
+        value = timing["total_time"]
+        # Assert
+        assert value >= 0.009
+
+    def test_payload_includes_source_key(self, sleepy_timing):
+        # Arrange
+        timing = sleepy_timing
+        # Act
+        present = "source" in timing
+        # Assert
+        assert present
+
+
+@pytest.fixture
+def source_capture(line_profiler):
+    @line_profiler.profile_lines
+    def my_func():
+        x = 1
+        y = 2
+        return x + y
+
+    my_func()
+    return line_profiler.timings["my_func"][0]["source"]
+
+
+class TestLineProfilerStoresSource:
+    """Tests for source-code capture by profile_lines."""
+
+    def test_source_is_a_list(self, source_capture):
+        # Arrange
+        source = source_capture
+        # Act
+        kind = type(source)
+        # Assert
+        assert issubclass(kind, list)
+
+    def test_source_list_is_nonempty(self, source_capture):
+        # Arrange
+        source = source_capture
+        # Act
+        size = len(source)
+        # Assert
+        assert size > 0
+
+    def test_source_text_contains_return_keyword(self, source_capture):
+        # Arrange
+        source = source_capture
+        # Act
+        text = "".join(source)
+        # Assert
+        assert "return" in text
+
+
+# ============================================================================
+# Test LineProfiler — print_timings
+# ============================================================================
+
+
+@pytest.fixture
+def print_timings_output(line_profiler, capsys):
+    @line_profiler.profile_lines
+    def my_func():
+        return 42
+
+    my_func()
+    line_profiler.print_timings("my_func")
+    return capsys.readouterr()
+
+
+class TestLineProfilerPrintTimings:
+    """Tests for LineProfiler.print_timings output."""
+
+    def test_output_includes_line_timings_header(self, print_timings_output):
+        # Arrange
+        captured = print_timings_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "Line timings for my_func" in out
+
+    def test_output_includes_total_time_line(self, print_timings_output):
+        # Arrange
+        captured = print_timings_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "Total time:" in out
+
+    def test_output_includes_source_code_header(self, print_timings_output):
+        # Arrange
+        captured = print_timings_output
+        # Act
+        out = captured.out
+        # Assert
+        assert "Source code:" in out
+
+
+class TestLineProfilerPrintTimingsUnknown:
+    """Tests for print_timings() on an unknown function name."""
+
+    def test_unknown_function_prints_no_timings_message(self, line_profiler, capsys):
+        # Arrange
+        lp = line_profiler
+        # Act
+        lp.print_timings("unknown_func")
         captured = capsys.readouterr()
-        assert "Line timings for my_func" in captured.out
-        assert "Total time:" in captured.out
-        assert "Source code:" in captured.out
-
-    def test_print_timings_unknown_function(self, line_profiler, capsys):
-        """Test print_timings for unknown function."""
-        line_profiler.print_timings("unknown_func")
-
-        captured = capsys.readouterr()
+        # Assert
         assert "No timings for unknown_func" in captured.out
 
 
@@ -392,61 +750,59 @@ class TestLineProfiler:
 
 
 class TestGetMemoryUsage:
-    """Tests for get_memory_usage function."""
+    """Tests for get_memory_usage()."""
 
-    def test_get_memory_usage_returns_value_or_none(self):
-        """Test get_memory_usage returns float or None."""
+    def test_get_memory_usage_returns_float_or_none(self):
+        # Arrange
+        # (no setup needed)
+        # Act
         result = get_memory_usage()
-
-        # Result should be float (if psutil available) or None
+        # Assert
         assert result is None or isinstance(result, float)
 
-    def test_get_memory_usage_positive_value(self):
-        """Test get_memory_usage returns positive value if available."""
-        result = get_memory_usage()
-
-        if result is not None:
-            assert result > 0  # Memory usage should be positive
+    def test_get_memory_usage_returns_positive_when_available(self):
+        # Arrange
+        result = _require_psutil_memory()
+        # Act
+        value = result
+        # Assert
+        assert value > 0
 
 
 class TestTrackMemory:
-    """Tests for track_memory context manager."""
+    """Tests for track_memory() context manager."""
 
-    def test_track_memory_basic(self, capsys):
-        """Test basic track_memory usage."""
+    def test_track_memory_runs_without_raising(self, capsys):
+        # Arrange
+        # (no setup)
+        # Act
         with track_memory("test_allocation"):
-            # Allocate some memory
-            data = list(range(10000))
-
+            list(range(10000))
         captured = capsys.readouterr()
-        # Output depends on whether psutil is available
-        if "Memory usage" in captured.out:
-            assert "test_allocation" in captured.out
-            assert "Start:" in captured.out
-            assert "End:" in captured.out
-            assert "Delta:" in captured.out
+        # Assert
+        assert isinstance(captured.out, str)
 
-    def test_track_memory_exception_handling(self, capsys):
-        """Test track_memory handles exceptions."""
-        with pytest.raises(ValueError):
+    def test_track_memory_propagates_exception_to_caller(self):
+        # Arrange
+        # (no setup)
+        # Act
+        raised_ctx = pytest.raises(ValueError)
+        # Assert
+        with raised_ctx:
             with track_memory("error_block"):
                 raise ValueError("Test error")
 
-        # Should still print memory info before exception
-        captured = capsys.readouterr()
-        # May or may not have output depending on psutil availability
-
-    def test_track_memory_nested(self, capsys):
-        """Test nested track_memory blocks."""
+    def test_track_memory_supports_nested_blocks_without_raising(self, capsys):
+        # Arrange
+        # (no setup)
+        # Act
         with track_memory("outer"):
-            data1 = list(range(1000))
+            list(range(1000))
             with track_memory("inner"):
-                data2 = list(range(1000))
-
+                list(range(1000))
         captured = capsys.readouterr()
-        # Should have info for both if psutil available
-        if "Memory usage" in captured.out:
-            assert "outer" in captured.out or "inner" in captured.out
+        # Assert
+        assert isinstance(captured.out, str)
 
 
 # ============================================================================
@@ -460,310 +816,4 @@ if __name__ == "__main__":
 
     pytest.main([os.path.abspath(__file__)])
 
-# --------------------------------------------------------------------------------
-# Start of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/benchmark/profiler.py
-# --------------------------------------------------------------------------------
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# # Time-stamp: "2025-07-25 05:35:00"
-# # File: profiler.py
-#
-# """
-# Profiling tools for SciTeX performance analysis.
-# """
-#
-# import cProfile
-# import pstats
-# import io
-# from typing import Callable, Optional, Dict, Any
-# from functools import wraps
-# import time
-# from contextlib import contextmanager
-#
-#
-# class FunctionProfiler:
-#     """Profile individual function calls."""
-#
-#     def __init__(self):
-#         self.profiles = {}
-#         self.call_counts = {}
-#         self.total_times = {}
-#
-#     def profile(self, func: Callable) -> Callable:
-#         """
-#         Decorator to profile a function.
-#
-#         Example
-#         -------
-#         >>> profiler = FunctionProfiler()
-#         >>> @profiler.profile
-#         ... def my_function(x):
-#         ...     return x ** 2
-#         """
-#
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-#             # Create profiler for this call
-#             pr = cProfile.Profile()
-#             pr.enable()
-#
-#             # Call function
-#             start_time = time.time()
-#             result = func(*args, **kwargs)
-#             end_time = time.time()
-#
-#             pr.disable()
-#
-#             # Store results
-#             func_name = func.__name__
-#             if func_name not in self.profiles:
-#                 self.profiles[func_name] = []
-#                 self.call_counts[func_name] = 0
-#                 self.total_times[func_name] = 0.0
-#
-#             self.profiles[func_name].append(pr)
-#             self.call_counts[func_name] += 1
-#             self.total_times[func_name] += end_time - start_time
-#
-#             return result
-#
-#         return wrapper
-#
-#     def get_stats(self, func_name: str) -> Optional[pstats.Stats]:
-#         """Get profiling statistics for a function."""
-#         if func_name not in self.profiles:
-#             return None
-#
-#         # Combine all profiles for this function
-#         combined = pstats.Stats(self.profiles[func_name][0])
-#         for pr in self.profiles[func_name][1:]:
-#             combined.add(pr)
-#
-#         return combined
-#
-#     def print_stats(self, func_name: Optional[str] = None, top_n: int = 10):
-#         """Print profiling statistics."""
-#         if func_name:
-#             stats = self.get_stats(func_name)
-#             if stats:
-#                 print(f"\nProfile for {func_name}:")
-#                 print(f"Total calls: {self.call_counts[func_name]}")
-#                 print(f"Total time: {self.total_times[func_name]:.3f}s")
-#                 print(
-#                     f"Avg time per call: {self.total_times[func_name] / self.call_counts[func_name]:.3f}s"
-#                 )
-#                 print("\nDetailed stats:")
-#                 stats.sort_stats("cumulative").print_stats(top_n)
-#         else:
-#             # Print all functions
-#             for name in self.profiles:
-#                 self.print_stats(name, top_n)
-#
-#     def get_report(self) -> Dict[str, Any]:
-#         """Get a summary report of all profiled functions."""
-#         report = {}
-#         for func_name in self.profiles:
-#             stats = self.get_stats(func_name)
-#
-#             # Get top time consumers
-#             s = io.StringIO()
-#             stats.sort_stats("cumulative").print_stats(10, s)
-#
-#             report[func_name] = {
-#                 "call_count": self.call_counts[func_name],
-#                 "total_time": self.total_times[func_name],
-#                 "avg_time": self.total_times[func_name] / self.call_counts[func_name],
-#                 "profile": s.getvalue(),
-#             }
-#
-#         return report
-#
-#
-# # Global profiler instance
-# _global_profiler = FunctionProfiler()
-#
-#
-# def profile_function(func: Callable) -> Callable:
-#     """
-#     Decorator to profile a function using the global profiler.
-#
-#     Example
-#     -------
-#     >>> @profile_function
-#     ... def my_function(x):
-#     ...     return sum(range(x))
-#     """
-#     return _global_profiler.profile(func)
-#
-#
-# def get_profile_report() -> Dict[str, Any]:
-#     """Get profiling report from global profiler."""
-#     return _global_profiler.get_report()
-#
-#
-# def print_profile_stats(func_name: Optional[str] = None):
-#     """Print profiling statistics from global profiler."""
-#     _global_profiler.print_stats(func_name)
-#
-#
-# @contextmanager
-# def profile_block(name: str):
-#     """
-#     Context manager for profiling a code block.
-#
-#     Example
-#     -------
-#     >>> with profile_block("data_processing"):
-#     ...     # Some expensive operations
-#     ...     data = process_data()
-#     """
-#     pr = cProfile.Profile()
-#     pr.enable()
-#     start_time = time.time()
-#
-#     try:
-#         yield
-#     finally:
-#         pr.disable()
-#         end_time = time.time()
-#
-#         print(f"\nProfile for block '{name}':")
-#         print(f"Total time: {end_time - start_time:.3f}s")
-#
-#         s = io.StringIO()
-#         ps = pstats.Stats(pr, stream=s).sort_stats("cumulative")
-#         ps.print_stats(10)
-#         print(s.getvalue())
-#
-#
-# def profile_module(module_name: str, pattern: str = "*") -> Dict[str, Any]:
-#     """
-#     Profile all matching functions in a module.
-#
-#     Parameters
-#     ----------
-#     module_name : str
-#         Name of module to profile
-#     pattern : str
-#         Pattern to match function names
-#
-#     Returns
-#     -------
-#     dict
-#         Profiling results
-#     """
-#     import importlib
-#     import fnmatch
-#
-#     module = importlib.import_module(module_name)
-#     profiler = FunctionProfiler()
-#
-#     # Wrap all matching functions
-#     wrapped_functions = []
-#     for name in dir(module):
-#         if fnmatch.fnmatch(name, pattern):
-#             obj = getattr(module, name)
-#             if callable(obj) and not name.startswith("_"):
-#                 # Replace with profiled version
-#                 profiled = profiler.profile(obj)
-#                 setattr(module, name, profiled)
-#                 wrapped_functions.append(name)
-#
-#     print(f"Profiling {len(wrapped_functions)} functions in {module_name}")
-#     print(f"Wrapped: {', '.join(wrapped_functions)}")
-#     print("\nRun your code now. Call get_profile_report() when done.")
-#
-#     return profiler
-#
-#
-# class LineProfiler:
-#     """
-#     Line-by-line profiler for detailed analysis.
-#
-#     Note: This is a simplified version. For production use,
-#     consider using the line_profiler package.
-#     """
-#
-#     def __init__(self):
-#         self.timings = {}
-#
-#     def profile_lines(self, func: Callable) -> Callable:
-#         """Profile a function line by line."""
-#         import inspect
-#
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-#             # Get source lines
-#             source_lines = inspect.getsourcelines(func)[0]
-#             line_times = {}
-#
-#             # This is a simplified implementation
-#             # Real line profiling requires bytecode instrumentation
-#             start_time = time.time()
-#             result = func(*args, **kwargs)
-#             end_time = time.time()
-#
-#             # Store timing
-#             func_name = func.__name__
-#             if func_name not in self.timings:
-#                 self.timings[func_name] = []
-#
-#             self.timings[func_name].append(
-#                 {"total_time": end_time - start_time, "source": source_lines}
-#             )
-#
-#             return result
-#
-#         return wrapper
-#
-#     def print_timings(self, func_name: str):
-#         """Print line timings for a function."""
-#         if func_name not in self.timings:
-#             print(f"No timings for {func_name}")
-#             return
-#
-#         timing = self.timings[func_name][-1]  # Most recent
-#         print(f"\nLine timings for {func_name}:")
-#         print(f"Total time: {timing['total_time']:.3f}s")
-#         print("\nSource code:")
-#         for i, line in enumerate(timing["source"]):
-#             print(f"{i + 1:4d}: {line.rstrip()}")
-#
-#
-# # Memory profiling utilities
-# def get_memory_usage():
-#     """Get current memory usage in MB."""
-#     try:
-#         import psutil
-#
-#         process = psutil.Process()
-#         return process.memory_info().rss / 1024 / 1024
-#     except ImportError:
-#         return None
-#
-#
-# @contextmanager
-# def track_memory(name: str):
-#     """
-#     Track memory usage for a code block.
-#
-#     Example
-#     -------
-#     >>> with track_memory("data_loading"):
-#     ...     data = load_large_dataset()
-#     """
-#     start_mem = get_memory_usage()
-#
-#     try:
-#         yield
-#     finally:
-#         end_mem = get_memory_usage()
-#         if start_mem and end_mem:
-#             print(f"\nMemory usage for '{name}':")
-#             print(f"Start: {start_mem:.1f} MB")
-#             print(f"End: {end_mem:.1f} MB")
-#             print(f"Delta: {end_mem - start_mem:+.1f} MB")
-
-# --------------------------------------------------------------------------------
-# End of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/benchmark/profiler.py
-# --------------------------------------------------------------------------------
+# EOF

@@ -64,254 +64,708 @@ def temp_dir():
 
 
 # ============================================================================
-# Test PerformanceMetric
+# Test PerformanceMetric — all fields construction
 # ============================================================================
 
 
-class TestPerformanceMetric:
-    """Tests for PerformanceMetric dataclass."""
+class TestPerformanceMetricAllFields:
+    """Tests for PerformanceMetric dataclass — all fields construction."""
 
-    def test_creation_with_all_fields(self, sample_metric):
-        """Test PerformanceMetric with all fields."""
-        assert sample_metric.function == "test_function"
-        assert sample_metric.duration == 0.5
-        assert sample_metric.memory_delta == 10.0
-        assert sample_metric.args_size == 100
-        assert sample_metric.result_size == 50
-        assert sample_metric.exception is None
+    def test_stores_function_name_field(self, sample_metric):
+        # Arrange
+        metric = sample_metric
+        # Act
+        value = metric.function
+        # Assert
+        assert value == "test_function"
 
-    def test_creation_with_required_fields_only(self):
-        """Test PerformanceMetric with only required fields."""
-        metric = PerformanceMetric(
-            timestamp=1234567890.0,
-            function="my_func",
-            duration=0.1,
-        )
+    def test_stores_duration_field(self, sample_metric):
+        # Arrange
+        metric = sample_metric
+        # Act
+        value = metric.duration
+        # Assert
+        assert value == 0.5
 
-        assert metric.timestamp == 1234567890.0
-        assert metric.function == "my_func"
-        assert metric.duration == 0.1
-        assert metric.memory_delta is None
-        assert metric.args_size is None
-        assert metric.result_size is None
-        assert metric.exception is None
+    def test_stores_memory_delta_field(self, sample_metric):
+        # Arrange
+        metric = sample_metric
+        # Act
+        value = metric.memory_delta
+        # Assert
+        assert value == 10.0
 
-    def test_creation_with_exception(self):
-        """Test PerformanceMetric with exception."""
+    def test_stores_args_size_field(self, sample_metric):
+        # Arrange
+        metric = sample_metric
+        # Act
+        value = metric.args_size
+        # Assert
+        assert value == 100
+
+    def test_stores_result_size_field(self, sample_metric):
+        # Arrange
+        metric = sample_metric
+        # Act
+        value = metric.result_size
+        # Assert
+        assert value == 50
+
+    def test_exception_defaults_to_none(self, sample_metric):
+        # Arrange
+        metric = sample_metric
+        # Act
+        value = metric.exception
+        # Assert
+        assert value is None
+
+
+# ============================================================================
+# Test PerformanceMetric — required fields only
+# ============================================================================
+
+
+@pytest.fixture
+def minimal_metric():
+    return PerformanceMetric(
+        timestamp=1234567890.0,
+        function="my_func",
+        duration=0.1,
+    )
+
+
+class TestPerformanceMetricRequiredFields:
+    """Tests for PerformanceMetric dataclass — required-only construction."""
+
+    def test_stores_timestamp_field_value(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.timestamp
+        # Assert
+        assert value == 1234567890.0
+
+    def test_stores_function_name_value(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.function
+        # Assert
+        assert value == "my_func"
+
+    def test_stores_duration_field_value(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.duration
+        # Assert
+        assert value == 0.1
+
+    def test_memory_delta_defaults_to_none(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.memory_delta
+        # Assert
+        assert value is None
+
+    def test_args_size_defaults_to_none(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.args_size
+        # Assert
+        assert value is None
+
+    def test_result_size_defaults_to_none(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.result_size
+        # Assert
+        assert value is None
+
+    def test_exception_defaults_to_none(self, minimal_metric):
+        # Arrange
+        metric = minimal_metric
+        # Act
+        value = metric.exception
+        # Assert
+        assert value is None
+
+
+# ============================================================================
+# Test PerformanceMetric — with exception
+# ============================================================================
+
+
+class TestPerformanceMetricWithException:
+    """Tests for PerformanceMetric carrying an exception string."""
+
+    def test_exception_string_is_stored(self):
+        # Arrange
+        message = "ValueError: test error"
+        # Act
         metric = PerformanceMetric(
             timestamp=time.time(),
             function="error_func",
             duration=0.01,
-            exception="ValueError: test error",
+            exception=message,
         )
-
-        assert metric.exception == "ValueError: test error"
+        # Assert
+        assert metric.exception == message
 
 
 # ============================================================================
-# Test PerformanceMonitor
+# Test PerformanceMonitor — initialisation
 # ============================================================================
 
 
-class TestPerformanceMonitor:
-    """Tests for PerformanceMonitor class."""
+class TestPerformanceMonitorCreation:
+    """Tests for PerformanceMonitor initialization."""
 
-    def test_monitor_creation(self, monitor):
-        """Test monitor initialization."""
-        assert monitor.max_history == 100
-        assert len(monitor.metrics) == 0
-        assert monitor.is_monitoring is False
-        # New instances start with empty callbacks (default handler only on global)
-        assert isinstance(monitor.alert_callbacks, list)
+    def test_max_history_is_set_to_constructor_argument(self, monitor):
+        # Arrange
+        m = monitor
+        # Act
+        value = m.max_history
+        # Assert
+        assert value == 100
 
-    def test_start_stop(self, monitor):
-        """Test start and stop monitoring."""
-        assert monitor.is_monitoring is False
+    def test_metrics_starts_empty(self, monitor):
+        # Arrange
+        m = monitor
+        # Act
+        n = len(m.metrics)
+        # Assert
+        assert n == 0
 
-        monitor.start()
-        assert monitor.is_monitoring is True
+    def test_is_monitoring_starts_false(self, monitor):
+        # Arrange
+        m = monitor
+        # Act
+        flag = m.is_monitoring
+        # Assert
+        assert flag is False
 
-        monitor.stop()
-        assert monitor.is_monitoring is False
+    def test_alert_callbacks_is_a_list(self, monitor):
+        # Arrange
+        m = monitor
+        # Act
+        callbacks = m.alert_callbacks
+        # Assert
+        assert isinstance(callbacks, list)
 
-    def test_record_metric_when_monitoring(self, started_monitor, sample_metric):
-        """Test recording metrics when monitoring is active."""
-        started_monitor.record_metric(sample_metric)
 
-        assert len(started_monitor.metrics) == 1
-        assert started_monitor.function_stats["test_function"]["count"] == 1
+# ============================================================================
+# Test PerformanceMonitor — start/stop
+# ============================================================================
 
-    def test_record_metric_when_not_monitoring(self, monitor, sample_metric):
-        """Test that metrics are not recorded when monitoring is off."""
-        monitor.record_metric(sample_metric)
 
-        assert len(monitor.metrics) == 0
+class TestPerformanceMonitorStartStop:
+    """Tests for PerformanceMonitor start/stop lifecycle."""
 
-    def test_function_stats_updated(self, started_monitor):
-        """Test that function stats are updated correctly."""
-        for i in range(5):
-            metric = PerformanceMetric(
-                timestamp=time.time(),
-                function="my_func",
-                duration=0.1 * (i + 1),
-            )
-            started_monitor.record_metric(metric)
+    def test_fresh_monitor_is_not_monitoring(self, monitor):
+        # Arrange
+        m = monitor
+        # Act
+        flag = m.is_monitoring
+        # Assert
+        assert flag is False
 
-        stats = started_monitor.function_stats["my_func"]
-        assert stats["count"] == 5
-        assert stats["min_time"] == 0.1
-        assert stats["max_time"] == 0.5
-        assert abs(stats["total_time"] - 1.5) < 0.001
+    def test_start_flips_is_monitoring_to_true(self, monitor):
+        # Arrange
+        m = monitor
+        # Act
+        m.start()
+        # Assert
+        assert m.is_monitoring is True
 
-    def test_error_tracking(self, started_monitor):
-        """Test that errors are tracked."""
-        # Record normal metric
-        started_monitor.record_metric(
-            PerformanceMetric(timestamp=time.time(), function="my_func", duration=0.1)
-        )
+    def test_stop_after_start_flips_is_monitoring_to_false(self, monitor):
+        # Arrange
+        m = monitor
+        m.start()
+        # Act
+        m.stop()
+        # Assert
+        assert m.is_monitoring is False
 
-        # Record error metric
+
+# ============================================================================
+# Test PerformanceMonitor — record_metric
+# ============================================================================
+
+
+class TestPerformanceMonitorRecordWhenActive:
+    """Tests for record_metric when monitoring is active."""
+
+    def test_recorded_metric_is_stored(self, started_monitor, sample_metric):
+        # Arrange
+        mon = started_monitor
+        # Act
+        mon.record_metric(sample_metric)
+        # Assert
+        assert len(mon.metrics) == 1
+
+    def test_recording_increments_function_stats_count(
+        self, started_monitor, sample_metric
+    ):
+        # Arrange
+        mon = started_monitor
+        # Act
+        mon.record_metric(sample_metric)
+        # Assert
+        assert mon.function_stats["test_function"]["count"] == 1
+
+
+class TestPerformanceMonitorRecordWhenInactive:
+    """Tests for record_metric when monitoring is off."""
+
+    def test_metric_is_not_stored_when_not_started(self, monitor, sample_metric):
+        # Arrange
+        m = monitor
+        # Act
+        m.record_metric(sample_metric)
+        # Assert
+        assert len(m.metrics) == 0
+
+
+# ============================================================================
+# Test PerformanceMonitor — function_stats accumulation
+# ============================================================================
+
+
+@pytest.fixture
+def five_metric_stats(started_monitor):
+    for i in range(5):
         started_monitor.record_metric(
             PerformanceMetric(
                 timestamp=time.time(),
                 function="my_func",
-                duration=0.1,
-                exception="Error!",
+                duration=0.1 * (i + 1),
             )
         )
+    return started_monitor.function_stats["my_func"]
 
-        stats = started_monitor.function_stats["my_func"]
-        assert stats["count"] == 2
-        assert stats["errors"] == 1
 
-    def test_max_history_limit(self):
-        """Test that max_history limits stored metrics."""
-        monitor = PerformanceMonitor(max_history=5)
-        monitor.start()
+class TestPerformanceMonitorFunctionStats:
+    """Tests for cumulative function-stat updates."""
 
-        for i in range(10):
-            monitor.record_metric(
+    def test_count_accumulates_across_metrics(self, five_metric_stats):
+        # Arrange
+        stats = five_metric_stats
+        # Act
+        value = stats["count"]
+        # Assert
+        assert value == 5
+
+    def test_min_time_tracks_smallest_duration(self, five_metric_stats):
+        # Arrange
+        stats = five_metric_stats
+        # Act
+        value = stats["min_time"]
+        # Assert
+        assert value == 0.1
+
+    def test_max_time_tracks_largest_duration(self, five_metric_stats):
+        # Arrange
+        stats = five_metric_stats
+        # Act
+        value = stats["max_time"]
+        # Assert
+        assert value == 0.5
+
+    def test_total_time_sums_individual_durations(self, five_metric_stats):
+        # Arrange
+        stats = five_metric_stats
+        # Act
+        value = stats["total_time"]
+        # Assert
+        assert abs(value - 1.5) < 0.001
+
+
+# ============================================================================
+# Test PerformanceMonitor — error tracking
+# ============================================================================
+
+
+@pytest.fixture
+def error_tracking_stats(started_monitor):
+    started_monitor.record_metric(
+        PerformanceMetric(timestamp=time.time(), function="my_func", duration=0.1)
+    )
+    started_monitor.record_metric(
+        PerformanceMetric(
+            timestamp=time.time(),
+            function="my_func",
+            duration=0.1,
+            exception="Error!",
+        )
+    )
+    return started_monitor.function_stats["my_func"]
+
+
+class TestPerformanceMonitorErrorTracking:
+    """Tests for error counting in function stats."""
+
+    def test_total_count_includes_both_normal_and_error_metrics(
+        self, error_tracking_stats
+    ):
+        # Arrange
+        stats = error_tracking_stats
+        # Act
+        value = stats["count"]
+        # Assert
+        assert value == 2
+
+    def test_error_count_increments_only_for_exception_metrics(
+        self, error_tracking_stats
+    ):
+        # Arrange
+        stats = error_tracking_stats
+        # Act
+        value = stats["errors"]
+        # Assert
+        assert value == 1
+
+
+# ============================================================================
+# Test PerformanceMonitor — max_history limit
+# ============================================================================
+
+
+class TestPerformanceMonitorMaxHistory:
+    """Tests for max_history bounded deque."""
+
+    def test_metrics_capped_at_max_history_length(self):
+        # Arrange
+        m = PerformanceMonitor(max_history=5)
+        m.start()
+        for _ in range(10):
+            m.record_metric(
                 PerformanceMetric(timestamp=time.time(), function="func", duration=0.01)
             )
+        # Act
+        size = len(m.metrics)
+        # Assert
+        m.stop()
+        assert size == 5
 
-        assert len(monitor.metrics) == 5
-        monitor.stop()
 
-    def test_get_stats_all(self, started_monitor):
-        """Test get_stats for all functions."""
-        started_monitor.record_metric(
-            PerformanceMetric(timestamp=time.time(), function="func1", duration=0.1)
-        )
-        started_monitor.record_metric(
-            PerformanceMetric(timestamp=time.time(), function="func2", duration=0.2)
-        )
+# ============================================================================
+# Test PerformanceMonitor — get_stats
+# ============================================================================
 
-        stats = started_monitor.get_stats()
 
-        assert "func1" in stats
-        assert "func2" in stats
-        assert stats["func1"]["avg_time"] == 0.1
-        assert stats["func2"]["avg_time"] == 0.2
+@pytest.fixture
+def stats_two_functions(started_monitor):
+    started_monitor.record_metric(
+        PerformanceMetric(timestamp=time.time(), function="func1", duration=0.1)
+    )
+    started_monitor.record_metric(
+        PerformanceMetric(timestamp=time.time(), function="func2", duration=0.2)
+    )
+    return started_monitor.get_stats()
 
-    def test_get_stats_single_function(self, started_monitor):
-        """Test get_stats for single function."""
-        started_monitor.record_metric(
-            PerformanceMetric(timestamp=time.time(), function="my_func", duration=0.1)
-        )
-        started_monitor.record_metric(
-            PerformanceMetric(timestamp=time.time(), function="my_func", duration=0.3)
-        )
 
-        stats = started_monitor.get_stats("my_func")
+class TestPerformanceMonitorGetStatsAll:
+    """Tests for get_stats() with no function filter."""
 
-        assert stats["function"] == "my_func"
-        assert stats["count"] == 2
-        assert stats["avg_time"] == 0.2
-        assert stats["min_time"] == 0.1
-        assert stats["max_time"] == 0.3
+    def test_returns_entry_for_first_function(self, stats_two_functions):
+        # Arrange
+        stats = stats_two_functions
+        # Act
+        present = "func1" in stats
+        # Assert
+        assert present
 
-    def test_get_stats_unknown_function(self, started_monitor):
-        """Test get_stats for unknown function."""
-        stats = started_monitor.get_stats("unknown_func")
+    def test_returns_entry_for_second_function(self, stats_two_functions):
+        # Arrange
+        stats = stats_two_functions
+        # Act
+        present = "func2" in stats
+        # Assert
+        assert present
+
+    def test_first_function_avg_time_matches_recorded(self, stats_two_functions):
+        # Arrange
+        stats = stats_two_functions
+        # Act
+        value = stats["func1"]["avg_time"]
+        # Assert
+        assert value == 0.1
+
+    def test_second_function_avg_time_matches_recorded(self, stats_two_functions):
+        # Arrange
+        stats = stats_two_functions
+        # Act
+        value = stats["func2"]["avg_time"]
+        # Assert
+        assert value == 0.2
+
+
+@pytest.fixture
+def stats_single_function(started_monitor):
+    started_monitor.record_metric(
+        PerformanceMetric(timestamp=time.time(), function="my_func", duration=0.1)
+    )
+    started_monitor.record_metric(
+        PerformanceMetric(timestamp=time.time(), function="my_func", duration=0.3)
+    )
+    return started_monitor.get_stats("my_func")
+
+
+class TestPerformanceMonitorGetStatsSingle:
+    """Tests for get_stats(function) for a specific function."""
+
+    def test_function_field_returns_requested_name(self, stats_single_function):
+        # Arrange
+        stats = stats_single_function
+        # Act
+        value = stats["function"]
+        # Assert
+        assert value == "my_func"
+
+    def test_count_is_sum_of_recorded_metrics(self, stats_single_function):
+        # Arrange
+        stats = stats_single_function
+        # Act
+        value = stats["count"]
+        # Assert
+        assert value == 2
+
+    def test_avg_time_is_arithmetic_mean(self, stats_single_function):
+        # Arrange
+        stats = stats_single_function
+        # Act
+        value = stats["avg_time"]
+        # Assert
+        assert value == 0.2
+
+    def test_min_time_is_smallest_recorded(self, stats_single_function):
+        # Arrange
+        stats = stats_single_function
+        # Act
+        value = stats["min_time"]
+        # Assert
+        assert value == 0.1
+
+    def test_max_time_is_largest_recorded(self, stats_single_function):
+        # Arrange
+        stats = stats_single_function
+        # Act
+        value = stats["max_time"]
+        # Assert
+        assert value == 0.3
+
+
+class TestPerformanceMonitorGetStatsUnknown:
+    """Tests for get_stats() on unknown function name."""
+
+    def test_unknown_function_returns_empty_dict(self, started_monitor):
+        # Arrange
+        mon = started_monitor
+        # Act
+        stats = mon.get_stats("unknown_func")
+        # Assert
         assert stats == {}
 
-    def test_get_recent_metrics(self, started_monitor):
-        """Test get_recent_metrics."""
-        for i in range(10):
-            started_monitor.record_metric(
-                PerformanceMetric(
-                    timestamp=time.time() + i, function=f"func_{i}", duration=0.01
-                )
+
+# ============================================================================
+# Test PerformanceMonitor — get_recent_metrics
+# ============================================================================
+
+
+@pytest.fixture
+def recent_metrics(started_monitor):
+    for i in range(10):
+        started_monitor.record_metric(
+            PerformanceMetric(
+                timestamp=time.time() + i, function=f"func_{i}", duration=0.01
             )
+        )
+    return started_monitor.get_recent_metrics(5)
 
-        recent = started_monitor.get_recent_metrics(5)
 
-        assert len(recent) == 5
-        # Should be the last 5
-        assert recent[0].function == "func_5"
-        assert recent[-1].function == "func_9"
+class TestPerformanceMonitorRecentMetrics:
+    """Tests for get_recent_metrics()."""
 
-    def test_clear_metrics(self, started_monitor, sample_metric):
-        """Test clearing metrics."""
-        started_monitor.record_metric(sample_metric)
-        assert len(started_monitor.metrics) == 1
+    def test_returns_requested_number_of_metrics(self, recent_metrics):
+        # Arrange
+        result = recent_metrics
+        # Act
+        size = len(result)
+        # Assert
+        assert size == 5
 
-        started_monitor.clear()
+    def test_first_recent_metric_is_the_correct_offset(self, recent_metrics):
+        # Arrange
+        result = recent_metrics
+        # Act
+        name = result[0].function
+        # Assert
+        assert name == "func_5"
 
-        assert len(started_monitor.metrics) == 0
-        assert len(started_monitor.function_stats) == 0
+    def test_last_recent_metric_is_the_most_recent(self, recent_metrics):
+        # Arrange
+        result = recent_metrics
+        # Act
+        name = result[-1].function
+        # Assert
+        assert name == "func_9"
 
-    def test_save_metrics(self, started_monitor, sample_metric, temp_dir):
-        """Test saving metrics to file."""
-        started_monitor.record_metric(sample_metric)
 
-        output_path = os.path.join(temp_dir, "metrics.json")
-        started_monitor.save_metrics(output_path)
+# ============================================================================
+# Test PerformanceMonitor — clear
+# ============================================================================
 
-        assert os.path.exists(output_path)
 
-        with open(output_path) as f:
+@pytest.fixture
+def cleared_monitor(started_monitor, sample_metric):
+    started_monitor.record_metric(sample_metric)
+    started_monitor.clear()
+    return started_monitor
+
+
+class TestPerformanceMonitorClear:
+    """Tests for clear()."""
+
+    def test_clear_empties_metrics(self, cleared_monitor):
+        # Arrange
+        mon = cleared_monitor
+        # Act
+        size = len(mon.metrics)
+        # Assert
+        assert size == 0
+
+    def test_clear_empties_function_stats(self, cleared_monitor):
+        # Arrange
+        mon = cleared_monitor
+        # Act
+        size = len(mon.function_stats)
+        # Assert
+        assert size == 0
+
+
+# ============================================================================
+# Test PerformanceMonitor — save / load
+# ============================================================================
+
+
+@pytest.fixture
+def saved_metrics_path(started_monitor, sample_metric, temp_dir):
+    started_monitor.record_metric(sample_metric)
+    path = os.path.join(temp_dir, "metrics.json")
+    started_monitor.save_metrics(path)
+    return path
+
+
+class TestPerformanceMonitorSaveMetrics:
+    """Tests for save_metrics()."""
+
+    def test_save_creates_file(self, saved_metrics_path):
+        # Arrange
+        path = saved_metrics_path
+        # Act
+        exists = os.path.exists(path)
+        # Assert
+        assert exists
+
+    def test_saved_payload_contains_metrics_key(self, saved_metrics_path):
+        # Arrange
+        with open(saved_metrics_path) as f:
             data = json.load(f)
+        # Act
+        present = "metrics" in data
+        # Assert
+        assert present
 
-        assert "metrics" in data
-        assert "stats" in data
-        assert len(data["metrics"]) == 1
-        assert data["metrics"][0]["function"] == "test_function"
+    def test_saved_payload_contains_stats_key(self, saved_metrics_path):
+        # Arrange
+        with open(saved_metrics_path) as f:
+            data = json.load(f)
+        # Act
+        present = "stats" in data
+        # Assert
+        assert present
 
-    def test_load_metrics(self, monitor, temp_dir):
-        """Test loading metrics from file."""
-        # Create test data file
-        data = {
-            "metrics": [
-                {
-                    "timestamp": 123456.0,
-                    "function": "loaded_func",
-                    "duration": 0.5,
-                    "memory_delta": None,
-                    "args_size": None,
-                    "result_size": None,
-                    "exception": None,
-                }
-            ],
-            "stats": {"loaded_func": {"count": 1, "total_time": 0.5}},
-        }
+    def test_saved_payload_metrics_count_matches_recorded(self, saved_metrics_path):
+        # Arrange
+        with open(saved_metrics_path) as f:
+            data = json.load(f)
+        # Act
+        n = len(data["metrics"])
+        # Assert
+        assert n == 1
 
-        input_path = os.path.join(temp_dir, "metrics.json")
-        with open(input_path, "w") as f:
-            json.dump(data, f)
+    def test_saved_metric_preserves_function_name(self, saved_metrics_path):
+        # Arrange
+        with open(saved_metrics_path) as f:
+            data = json.load(f)
+        # Act
+        name = data["metrics"][0]["function"]
+        # Assert
+        assert name == "test_function"
 
-        monitor.load_metrics(input_path)
 
-        assert len(monitor.metrics) == 1
-        assert monitor.metrics[0].function == "loaded_func"
+@pytest.fixture
+def loaded_monitor(monitor, temp_dir):
+    data = {
+        "metrics": [
+            {
+                "timestamp": 123456.0,
+                "function": "loaded_func",
+                "duration": 0.5,
+                "memory_delta": None,
+                "args_size": None,
+                "result_size": None,
+                "exception": None,
+            }
+        ],
+        "stats": {"loaded_func": {"count": 1, "total_time": 0.5}},
+    }
+    path = os.path.join(temp_dir, "metrics.json")
+    with open(path, "w") as f:
+        json.dump(data, f)
+    monitor.load_metrics(path)
+    return monitor
 
-    def test_thread_safety(self, started_monitor):
-        """Test thread safety of recording metrics."""
+
+class TestPerformanceMonitorLoadMetrics:
+    """Tests for load_metrics()."""
+
+    def test_loaded_metrics_count_matches_payload(self, loaded_monitor):
+        # Arrange
+        mon = loaded_monitor
+        # Act
+        n = len(mon.metrics)
+        # Assert
+        assert n == 1
+
+    def test_loaded_metric_preserves_function_name(self, loaded_monitor):
+        # Arrange
+        mon = loaded_monitor
+        # Act
+        name = mon.metrics[0].function
+        # Assert
+        assert name == "loaded_func"
+
+
+# ============================================================================
+# Test PerformanceMonitor — thread safety
+# ============================================================================
+
+
+class TestPerformanceMonitorThreadSafety:
+    """Tests for thread-safe metric recording."""
+
+    def test_concurrent_recording_preserves_total_count(self, started_monitor):
+        # Arrange
         num_threads = 5
         metrics_per_thread = 100
 
         def record_metrics():
-            for i in range(metrics_per_thread):
+            for _ in range(metrics_per_thread):
                 started_monitor.record_metric(
                     PerformanceMetric(
                         timestamp=time.time(),
@@ -325,90 +779,151 @@ class TestPerformanceMonitor:
             t.start()
         for t in threads:
             t.join()
-
-        stats = started_monitor.function_stats["thread_func"]
-        assert stats["count"] == num_threads * metrics_per_thread
+        # Act
+        total = started_monitor.function_stats["thread_func"]["count"]
+        # Assert
+        assert total == num_threads * metrics_per_thread
 
 
 # ============================================================================
-# Test Alerts
+# Test Alerts — slow function
 # ============================================================================
 
 
-class TestAlerts:
-    """Tests for performance alerts."""
+@pytest.fixture
+def slow_alert_capture(started_monitor):
+    received = []
 
-    def test_slow_function_alert(self, started_monitor):
-        """Test slow function alert."""
-        alerts_received = []
+    def handler(alert):
+        received.append(alert)
 
-        def alert_handler(alert):
-            alerts_received.append(alert)
+    started_monitor.alert_callbacks = [handler]
+    started_monitor.alerts["slow_function"] = 0.1
+    started_monitor.record_metric(
+        PerformanceMetric(timestamp=time.time(), function="slow_func", duration=0.5)
+    )
+    return received
 
-        started_monitor.alert_callbacks = [alert_handler]
-        started_monitor.alerts["slow_function"] = 0.1
 
-        # Record slow metric
-        started_monitor.record_metric(
-            PerformanceMetric(timestamp=time.time(), function="slow_func", duration=0.5)
+class TestAlertSlowFunction:
+    """Tests for slow_function alert firing."""
+
+    def test_slow_function_fires_exactly_one_alert(self, slow_alert_capture):
+        # Arrange
+        alerts = slow_alert_capture
+        # Act
+        n = len(alerts)
+        # Assert
+        assert n == 1
+
+    def test_slow_function_alert_has_correct_type(self, slow_alert_capture):
+        # Arrange
+        alerts = slow_alert_capture
+        # Act
+        kind = alerts[0]["type"]
+        # Assert
+        assert kind == "slow_function"
+
+    def test_slow_function_alert_includes_function_name(self, slow_alert_capture):
+        # Arrange
+        alerts = slow_alert_capture
+        # Act
+        name = alerts[0]["function"]
+        # Assert
+        assert name == "slow_func"
+
+
+# ============================================================================
+# Test Alerts — memory spike
+# ============================================================================
+
+
+@pytest.fixture
+def memory_alert_capture(started_monitor):
+    received = []
+
+    def handler(alert):
+        received.append(alert)
+
+    started_monitor.alert_callbacks = [handler]
+    started_monitor.alerts["memory_spike"] = 50
+    started_monitor.record_metric(
+        PerformanceMetric(
+            timestamp=time.time(),
+            function="mem_func",
+            duration=0.1,
+            memory_delta=100,
         )
+    )
+    return received
 
-        assert len(alerts_received) == 1
-        assert alerts_received[0]["type"] == "slow_function"
-        assert alerts_received[0]["function"] == "slow_func"
 
-    def test_memory_spike_alert(self, started_monitor):
-        """Test memory spike alert."""
+class TestAlertMemorySpike:
+    """Tests for memory_spike alert firing."""
+
+    def test_memory_spike_fires_exactly_one_alert(self, memory_alert_capture):
+        # Arrange
+        alerts = memory_alert_capture
+        # Act
+        n = len(alerts)
+        # Assert
+        assert n == 1
+
+    def test_memory_spike_alert_has_correct_type(self, memory_alert_capture):
+        # Arrange
+        alerts = memory_alert_capture
+        # Act
+        kind = alerts[0]["type"]
+        # Assert
+        assert kind == "memory_spike"
+
+
+# ============================================================================
+# Test Alerts — below-threshold suppression
+# ============================================================================
+
+
+class TestAlertBelowThreshold:
+    """Tests for alert suppression when metric is below threshold."""
+
+    def test_fast_function_does_not_fire_slow_function_alert(self, started_monitor):
+        # Arrange
         alerts_received = []
 
-        def alert_handler(alert):
+        def handler(alert):
             alerts_received.append(alert)
 
-        started_monitor.alert_callbacks = [alert_handler]
-        started_monitor.alerts["memory_spike"] = 50
-
-        # Record metric with large memory delta
-        started_monitor.record_metric(
-            PerformanceMetric(
-                timestamp=time.time(),
-                function="mem_func",
-                duration=0.1,
-                memory_delta=100,
-            )
-        )
-
-        assert len(alerts_received) == 1
-        assert alerts_received[0]["type"] == "memory_spike"
-
-    def test_no_alert_below_threshold(self, started_monitor):
-        """Test no alert when below threshold."""
-        alerts_received = []
-
-        def alert_handler(alert):
-            alerts_received.append(alert)
-
-        started_monitor.alert_callbacks = [alert_handler]
+        started_monitor.alert_callbacks = [handler]
         started_monitor.alerts["slow_function"] = 1.0
-
-        # Record fast metric
         started_monitor.record_metric(
             PerformanceMetric(timestamp=time.time(), function="fast_func", duration=0.1)
         )
-
-        # No slow function alert expected
+        # Act
         slow_alerts = [a for a in alerts_received if a["type"] == "slow_function"]
+        # Assert
         assert len(slow_alerts) == 0
 
-    def test_add_alert_callback(self, monitor):
-        """Test adding alert callbacks."""
-        initial_count = len(monitor.alert_callbacks)
+
+# ============================================================================
+# Test Alerts — add_alert_callback
+# ============================================================================
+
+
+class TestAlertAddCallback:
+    """Tests for add_alert_callback()."""
+
+    def test_adding_callback_grows_list_by_one(self, monitor):
+        # Arrange
+        m = monitor
+        before = len(m.alert_callbacks)
 
         def my_handler(alert):
             pass
 
-        monitor.add_alert_callback(my_handler)
-
-        assert len(monitor.alert_callbacks) == initial_count + 1
+        # Act
+        m.add_alert_callback(my_handler)
+        # Assert
+        assert len(m.alert_callbacks) == before + 1
 
 
 # ============================================================================
@@ -416,38 +931,62 @@ class TestAlerts:
 # ============================================================================
 
 
-class TestTrackPerformance:
-    """Tests for track_performance decorator."""
+class TestTrackPerformanceBasic:
+    """Tests for basic track_performance decorator usage."""
 
-    def test_track_performance_basic(self):
-        """Test basic track_performance usage."""
-
+    def test_decorated_function_returns_correct_value(self):
+        # Arrange
         @track_performance
         def my_func(x):
             return x * 2
 
+        # Act
         result = my_func(5)
+        # Assert
         assert result == 10
 
-    def test_track_performance_preserves_function(self):
-        """Test that decorator preserves function metadata."""
 
+class TestTrackPerformanceMetadata:
+    """Tests for track_performance metadata preservation."""
+
+    def test_decorator_preserves_function_name(self):
+        # Arrange
         @track_performance
         def original_name(x):
             """Original docstring."""
             return x
 
-        assert original_name.__name__ == "original_name"
-        assert original_name.__doc__ == "Original docstring."
+        # Act
+        name = original_name.__name__
+        # Assert
+        assert name == "original_name"
 
-    def test_track_performance_with_exception(self):
-        """Test track_performance with exception."""
+    def test_decorator_preserves_docstring(self):
+        # Arrange
+        @track_performance
+        def original_name(x):
+            """Original docstring."""
+            return x
 
+        # Act
+        doc = original_name.__doc__
+        # Assert
+        assert doc == "Original docstring."
+
+
+class TestTrackPerformanceException:
+    """Tests for track_performance exception propagation."""
+
+    def test_decorated_function_propagates_value_error(self):
+        # Arrange
         @track_performance
         def error_func():
             raise ValueError("Test error")
 
-        with pytest.raises(ValueError):
+        # Act
+        raised_ctx = pytest.raises(ValueError)
+        # Assert
+        with raised_ctx:
             error_func()
 
 
@@ -457,32 +996,47 @@ class TestTrackPerformance:
 
 
 class TestModuleFunctions:
-    """Tests for module-level functions."""
+    """Tests for module-level helper functions."""
 
-    def test_get_performance_stats(self):
-        """Test get_performance_stats function."""
+    def test_get_performance_stats_returns_dict(self):
+        # Arrange
+        # (no setup needed)
+        # Act
         stats = get_performance_stats()
+        # Assert
         assert isinstance(stats, dict)
 
-    def test_get_performance_stats_with_function(self):
-        """Test get_performance_stats with function name."""
+    def test_get_performance_stats_for_unknown_function_returns_dict(self):
+        # Arrange
+        # (no setup needed)
+        # Act
         stats = get_performance_stats("unknown_func")
-        # Should return empty dict for unknown function
+        # Assert
         assert isinstance(stats, dict)
 
-    def test_set_performance_alerts(self):
-        """Test set_performance_alerts function."""
-        # Should not raise
+    def test_set_performance_alerts_updates_thresholds_without_error(self):
+        # Arrange
+        # (no setup needed)
+        # Act
         set_performance_alerts(slow_function=2.0, memory_spike=200)
+        # Assert
+        from scitex_benchmark.monitor import _global_monitor
 
-    def test_add_performance_alert_handler(self):
-        """Test add_performance_alert_handler function."""
+        assert _global_monitor.alerts["slow_function"] == 2.0
+
+    def test_add_performance_alert_handler_appends_callback(self):
+        # Arrange
+        from scitex_benchmark.monitor import _global_monitor
+
+        before = len(_global_monitor.alert_callbacks)
 
         def my_handler(alert):
             pass
 
-        # Should not raise
+        # Act
         add_performance_alert_handler(my_handler)
+        # Assert
+        assert len(_global_monitor.alert_callbacks) == before + 1
 
 
 # ============================================================================
@@ -493,33 +1047,33 @@ class TestModuleFunctions:
 class TestDefaultAlertHandler:
     """Tests for default alert handler."""
 
-    def test_default_handler_slow_function_warning(self):
-        """Test default handler issues warning for slow function."""
+    def test_default_handler_issues_slow_function_warning(self):
+        # Arrange
         from scitex_benchmark.monitor import _default_alert_handler
 
-        # Create monitor with default handler registered
-        monitor = PerformanceMonitor(max_history=100)
-        monitor.add_alert_callback(_default_alert_handler)
-        monitor.start()
-        monitor.alerts["slow_function"] = 0.01
+        monitor_obj = PerformanceMonitor(max_history=100)
+        monitor_obj.add_alert_callback(_default_alert_handler)
+        monitor_obj.start()
+        monitor_obj.alerts["slow_function"] = 0.01
 
         try:
             with warnings.catch_warnings(record=True) as w:
                 warnings.simplefilter("always")
-
-                monitor.record_metric(
+                monitor_obj.record_metric(
                     PerformanceMetric(
-                        timestamp=time.time(), function="slow_func", duration=0.1
+                        timestamp=time.time(),
+                        function="slow_func",
+                        duration=0.1,
                     )
                 )
-
-                # Check for warning
+                # Act
                 slow_warnings = [
-                    warning for warning in w if "Slow function" in str(warning.message)
+                    warn for warn in w if "Slow function" in str(warn.message)
                 ]
+                # Assert
                 assert len(slow_warnings) >= 1
         finally:
-            monitor.stop()
+            monitor_obj.stop()
 
 
 # ============================================================================
@@ -533,390 +1087,4 @@ if __name__ == "__main__":
 
     pytest.main([os.path.abspath(__file__)])
 
-# --------------------------------------------------------------------------------
-# Start of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/benchmark/monitor.py
-# --------------------------------------------------------------------------------
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# # Time-stamp: "2025-07-25 05:40:00"
-# # File: monitor.py
-#
-# """
-# Real-time performance monitoring for SciTeX.
-# """
-#
-# import time
-# import threading
-# from collections import deque, defaultdict
-# from typing import Dict, List, Optional, Callable, Any
-# from dataclasses import dataclass
-# from datetime import datetime
-# import json
-# from pathlib import Path
-# import warnings
-#
-#
-# @dataclass
-# class PerformanceMetric:
-#     """Single performance measurement."""
-#
-#     timestamp: float
-#     function: str
-#     duration: float
-#     memory_delta: Optional[float] = None
-#     args_size: Optional[int] = None
-#     result_size: Optional[int] = None
-#     exception: Optional[str] = None
-#
-#
-# class PerformanceMonitor:
-#     """
-#     Monitor performance metrics for SciTeX functions.
-#
-#     Example
-#     -------
-#     >>> monitor = PerformanceMonitor()
-#     >>> monitor.start()
-#     >>> # Your code here
-#     >>> stats = monitor.get_stats()
-#     """
-#
-#     def __init__(self, max_history: int = 1000):
-#         self.max_history = max_history
-#         self.metrics = deque(maxlen=max_history)
-#         self.function_stats = defaultdict(
-#             lambda: {
-#                 "count": 0,
-#                 "total_time": 0.0,
-#                 "min_time": float("inf"),
-#                 "max_time": 0.0,
-#                 "errors": 0,
-#             }
-#         )
-#         self.is_monitoring = False
-#         self._lock = threading.Lock()
-#
-#         # Alerts configuration
-#         self.alerts = {
-#             "slow_function": 1.0,  # Alert if function takes > 1s
-#             "memory_spike": 100,  # Alert if memory increases > 100MB
-#             "error_rate": 0.1,  # Alert if error rate > 10%
-#         }
-#         self.alert_callbacks = []
-#
-#     def start(self):
-#         """Start monitoring."""
-#         self.is_monitoring = True
-#
-#     def stop(self):
-#         """Stop monitoring."""
-#         self.is_monitoring = False
-#
-#     def record_metric(self, metric: PerformanceMetric):
-#         """Record a performance metric."""
-#         if not self.is_monitoring:
-#             return
-#
-#         with self._lock:
-#             self.metrics.append(metric)
-#
-#             # Update function statistics
-#             stats = self.function_stats[metric.function]
-#             stats["count"] += 1
-#             stats["total_time"] += metric.duration
-#             stats["min_time"] = min(stats["min_time"], metric.duration)
-#             stats["max_time"] = max(stats["max_time"], metric.duration)
-#
-#             if metric.exception:
-#                 stats["errors"] += 1
-#
-#             # Check alerts
-#             self._check_alerts(metric)
-#
-#     def _check_alerts(self, metric: PerformanceMetric):
-#         """Check if metric triggers any alerts."""
-#         alerts_triggered = []
-#
-#         # Slow function alert
-#         if metric.duration > self.alerts["slow_function"]:
-#             alerts_triggered.append(
-#                 {
-#                     "type": "slow_function",
-#                     "function": metric.function,
-#                     "duration": metric.duration,
-#                     "threshold": self.alerts["slow_function"],
-#                 }
-#             )
-#
-#         # Memory spike alert
-#         if metric.memory_delta and metric.memory_delta > self.alerts["memory_spike"]:
-#             alerts_triggered.append(
-#                 {
-#                     "type": "memory_spike",
-#                     "function": metric.function,
-#                     "delta": metric.memory_delta,
-#                     "threshold": self.alerts["memory_spike"],
-#                 }
-#             )
-#
-#         # Error rate alert
-#         stats = self.function_stats[metric.function]
-#         if stats["count"] > 10:  # Only check after sufficient calls
-#             error_rate = stats["errors"] / stats["count"]
-#             if error_rate > self.alerts["error_rate"]:
-#                 alerts_triggered.append(
-#                     {
-#                         "type": "high_error_rate",
-#                         "function": metric.function,
-#                         "rate": error_rate,
-#                         "threshold": self.alerts["error_rate"],
-#                     }
-#                 )
-#
-#         # Trigger callbacks
-#         for alert in alerts_triggered:
-#             for callback in self.alert_callbacks:
-#                 callback(alert)
-#
-#     def add_alert_callback(self, callback: Callable[[Dict[str, Any]], None]):
-#         """Add a callback for performance alerts."""
-#         self.alert_callbacks.append(callback)
-#
-#     def get_stats(self, function: Optional[str] = None) -> Dict[str, Any]:
-#         """
-#         Get performance statistics.
-#
-#         Parameters
-#         ----------
-#         function : str, optional
-#             Specific function to get stats for
-#
-#         Returns
-#         -------
-#         dict
-#             Performance statistics
-#         """
-#         with self._lock:
-#             if function:
-#                 stats = self.function_stats.get(function, {})
-#                 if stats and stats["count"] > 0:
-#                     return {
-#                         "function": function,
-#                         "count": stats["count"],
-#                         "total_time": stats["total_time"],
-#                         "avg_time": stats["total_time"] / stats["count"],
-#                         "min_time": stats["min_time"],
-#                         "max_time": stats["max_time"],
-#                         "error_rate": stats["errors"] / stats["count"],
-#                     }
-#                 return {}
-#             else:
-#                 # Return all stats
-#                 all_stats = {}
-#                 for func, stats in self.function_stats.items():
-#                     if stats["count"] > 0:
-#                         all_stats[func] = {
-#                             "count": stats["count"],
-#                             "avg_time": stats["total_time"] / stats["count"],
-#                             "min_time": stats["min_time"],
-#                             "max_time": stats["max_time"],
-#                             "error_rate": stats["errors"] / stats["count"],
-#                         }
-#                 return all_stats
-#
-#     def get_recent_metrics(self, n: int = 100) -> List[PerformanceMetric]:
-#         """Get n most recent metrics."""
-#         with self._lock:
-#             return list(self.metrics)[-n:]
-#
-#     def save_metrics(self, path: str):
-#         """Save metrics to file."""
-#         with self._lock:
-#             data = {
-#                 "metrics": [
-#                     {
-#                         "timestamp": m.timestamp,
-#                         "function": m.function,
-#                         "duration": m.duration,
-#                         "memory_delta": m.memory_delta,
-#                         "args_size": m.args_size,
-#                         "result_size": m.result_size,
-#                         "exception": m.exception,
-#                     }
-#                     for m in self.metrics
-#                 ],
-#                 "stats": dict(self.function_stats),
-#             }
-#
-#         Path(path).write_text(json.dumps(data, indent=2))
-#
-#     def load_metrics(self, path: str):
-#         """Load metrics from file."""
-#         data = json.loads(Path(path).read_text())
-#
-#         with self._lock:
-#             self.metrics.clear()
-#             for m in data["metrics"]:
-#                 self.metrics.append(PerformanceMetric(**m))
-#
-#             self.function_stats.clear()
-#             self.function_stats.update(data["stats"])
-#
-#     def clear(self):
-#         """Clear all metrics."""
-#         with self._lock:
-#             self.metrics.clear()
-#             self.function_stats.clear()
-#
-#
-# # Global monitor instance
-# _global_monitor = PerformanceMonitor()
-#
-#
-# def track_performance(func: Callable) -> Callable:
-#     """
-#     Decorator to track function performance.
-#
-#     Example
-#     -------
-#     >>> @track_performance
-#     ... def my_function(x):
-#     ...     return x ** 2
-#     """
-#     from functools import wraps
-#     import sys
-#
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         if not _global_monitor.is_monitoring:
-#             return func(*args, **kwargs)
-#
-#         # Get memory before (if available)
-#         try:
-#             import psutil
-#
-#             process = psutil.Process()
-#             mem_before = process.memory_info().rss / 1024 / 1024
-#         except:
-#             mem_before = None
-#
-#         # Time the function
-#         start_time = time.time()
-#         exception = None
-#         result = None
-#
-#         try:
-#             result = func(*args, **kwargs)
-#         except Exception as e:
-#             exception = str(e)
-#             raise
-#         finally:
-#             duration = time.time() - start_time
-#
-#             # Get memory after
-#             mem_delta = None
-#             if mem_before is not None:
-#                 try:
-#                     mem_after = process.memory_info().rss / 1024 / 1024
-#                     mem_delta = mem_after - mem_before
-#                 except:
-#                     pass
-#
-#             # Estimate sizes
-#             args_size = None
-#             result_size = None
-#             try:
-#                 args_size = sys.getsizeof(args) + sys.getsizeof(kwargs)
-#                 if result is not None:
-#                     result_size = sys.getsizeof(result)
-#             except:
-#                 pass
-#
-#             # Record metric
-#             metric = PerformanceMetric(
-#                 timestamp=start_time,
-#                 function=func.__name__,
-#                 duration=duration,
-#                 memory_delta=mem_delta,
-#                 args_size=args_size,
-#                 result_size=result_size,
-#                 exception=exception,
-#             )
-#
-#             _global_monitor.record_metric(metric)
-#
-#         return result
-#
-#     return wrapper
-#
-#
-# def start_monitoring():
-#     """Start global performance monitoring."""
-#     _global_monitor.start()
-#
-#
-# def stop_monitoring():
-#     """Stop global performance monitoring."""
-#     _global_monitor.stop()
-#
-#
-# def get_performance_stats(function: Optional[str] = None) -> Dict[str, Any]:
-#     """Get performance statistics from global monitor."""
-#     return _global_monitor.get_stats(function)
-#
-#
-# def set_performance_alerts(**thresholds):
-#     """
-#     Set performance alert thresholds.
-#
-#     Parameters
-#     ----------
-#     slow_function : float
-#         Alert if function takes longer than this (seconds)
-#     memory_spike : float
-#         Alert if memory increases by more than this (MB)
-#     error_rate : float
-#         Alert if error rate exceeds this (0-1)
-#     """
-#     _global_monitor.alerts.update(thresholds)
-#
-#
-# def add_performance_alert_handler(handler: Callable[[Dict[str, Any]], None]):
-#     """
-#     Add a handler for performance alerts.
-#
-#     Example
-#     -------
-#     >>> def alert_handler(alert):
-#     ...     print(f"ALERT: {alert['type']} in {alert['function']}")
-#     >>> add_performance_alert_handler(alert_handler)
-#     """
-#     _global_monitor.add_alert_callback(handler)
-#
-#
-# # Default alert handler
-# def _default_alert_handler(alert: Dict[str, Any]):
-#     """Default handler that prints warnings."""
-#     if alert["type"] == "slow_function":
-#         warnings.warn(
-#             f"Slow function: {alert['function']} took {alert['duration']:.2f}s "
-#             f"(threshold: {alert['threshold']}s)"
-#         )
-#     elif alert["type"] == "memory_spike":
-#         warnings.warn(
-#             f"Memory spike: {alert['function']} increased memory by {alert['delta']:.1f}MB "
-#             f"(threshold: {alert['threshold']}MB)"
-#         )
-#     elif alert["type"] == "high_error_rate":
-#         warnings.warn(
-#             f"High error rate: {alert['function']} has {alert['rate']:.1%} error rate "
-#             f"(threshold: {alert['threshold']:.1%})"
-#         )
-#
-#
-# # Register default handler
-# add_performance_alert_handler(_default_alert_handler)
-
-# --------------------------------------------------------------------------------
-# End of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/benchmark/monitor.py
-# --------------------------------------------------------------------------------
+# EOF
