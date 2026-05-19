@@ -7,25 +7,33 @@ regeneration; add hand-written cases below the second sentinel.
 This test imports every cross-package module that 'scitex-benchmark' references
 in its source tree. Two outcomes:
 
-- Module installed AND import succeeds → test PASSES.
+- Module installed AND import succeeds -> test PASSES.
 - Module installed BUT import fails (e.g. internal rename like
-  `scitex_io._load_cache` → `scitex_io._loading._load_cache`) →
+  `scitex_io._load_cache` -> `scitex_io._loading._load_cache`) ->
   test FAILS loudly.
-- Module NOT installed (peer standalone absent in the CI env) →
+- Module NOT installed (peer standalone absent in the CI env) ->
   test is SKIPPED via `pytest.importorskip`. The umbrella's CI
   (which installs every peer) catches cross-package renames.
 """
+
 import pytest
 
 # ===== AUTO-GENERATED: cross-package imports =====
 CROSS_PACKAGE_IMPORTS = [
-    'scitex_io',
-    'scitex_stats',
+    "scitex_io",
+    "scitex_stats",
 ]
 # ===== END AUTO-GENERATED =====
 
 
 @pytest.mark.parametrize("module_name", CROSS_PACKAGE_IMPORTS)
-def test_cross_package_import(module_name):
-    """Importing scitex-benchmark's declared cross-package dependency must succeed."""
-    pytest.importorskip(module_name)
+def test_cross_package_module_imports_with_real_dunder_name(module_name):
+    """Importing scitex-benchmark's declared cross-package dependency must
+    succeed and the returned module must self-identify by name (proves it's
+    a real module, not a placeholder stub)."""
+    # Arrange
+    expected_name = module_name
+    # Act
+    mod = pytest.importorskip(module_name)
+    # Assert
+    assert mod.__name__ == expected_name
