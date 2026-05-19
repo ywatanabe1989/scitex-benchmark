@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
-# Time-stamp: "2025-01-05"
+# Time-stamp: "2026-05-18"
 # File: test_benchmark.py
 
-"""Tests for scitex_benchmark.benchmark module."""
+"""Tests for scitex_benchmark.benchmark module.
+
+Each test follows the canonical TQ shape: descriptive name (>=3 word-tokens
+after `test_`), explicit `# Arrange` / `# Act` / `# Assert` markers in
+order, and exactly one assertion. Multi-assertion originals are split into
+one-assertion-per-test siblings that share an Arrange/Act fixture.
+"""
 
 import os
 import tempfile
-from pathlib import Path
+import time
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -38,7 +43,6 @@ def sample_function():
 @pytest.fixture
 def slow_function():
     """A function that takes measurable time."""
-    import time
 
     def slow_add(a, b):
         time.sleep(0.01)  # 10ms
@@ -71,6 +75,146 @@ def temp_dir():
         yield tmpdir
 
 
+@pytest.fixture
+def minimal_benchmark_result():
+    """BenchmarkResult constructed with only the required fields."""
+    return BenchmarkResult(
+        function_name="my_func",
+        module="my_module",
+        mean_time=0.5,
+        std_time=0.05,
+        min_time=0.4,
+        max_time=0.6,
+        iterations=10,
+    )
+
+
+@pytest.fixture
+def benchmark_function_result(sample_function):
+    """Run benchmark_function on sample_function with 5 iterations + 1 warmup."""
+    return benchmark_function(sample_function, args=(1, 2), iterations=5, warmup=1)
+
+
+@pytest.fixture
+def benchmark_result_dict(benchmark_result):
+    """to_dict() output of the all-fields benchmark_result fixture."""
+    return benchmark_result.to_dict()
+
+
+@pytest.fixture
+def two_impl_comparison_df():
+    """compare_implementations() output for a loop-vs-formula sum(0..n-1) pair."""
+
+    def impl1(x):
+        return sum(range(x))
+
+    def impl2(x):
+        return x * (x - 1) // 2
+
+    implementations = {"loop": impl1, "formula": impl2}
+
+    def data_gen():
+        return (1000,), {}
+
+    return compare_implementations(implementations, data_gen, iterations=3)
+
+
+@pytest.fixture
+def slow_vs_fast_comparison_df():
+    """compare_implementations() output where the second impl is much faster."""
+
+    def slow_impl(x):
+        time.sleep(0.01)
+        return x
+
+    def fast_impl(x):
+        return x
+
+    implementations = {"slow": slow_impl, "fast": fast_impl}
+
+    def data_gen():
+        return (10,), {}
+
+    return compare_implementations(implementations, data_gen, iterations=3)
+
+
+@pytest.fixture
+def populated_suite():
+    """A BenchmarkSuite('test_suite') with one benchmark named custom_name added."""
+    suite = BenchmarkSuite("test_suite")
+
+    def my_func():
+        return 42
+
+    def data_gen():
+        return (), {}
+
+    suite.add_benchmark(my_func, data_gen, name="custom_name", sizes=["small"])
+    return {"suite": suite, "func": my_func}
+
+
+@pytest.fixture
+def two_size_suite_results():
+    """A run() output of a suite with one func across two sizes (small, large)."""
+    suite = BenchmarkSuite("test_suite")
+
+    def my_func():
+        return 42
+
+    def data_gen():
+        return (), {}
+
+    suite.add_benchmark(my_func, data_gen, sizes=["small", "large"])
+    results = suite.run(iterations=3, verbose=True)
+    return results
+
+
+@pytest.fixture
+def saved_suite_csv(temp_dir):
+    """Run a BenchmarkSuite and save results to CSV; return {'path', 'df_loaded'}."""
+    suite = BenchmarkSuite("test_suite")
+
+    def my_func():
+        return 42
+
+    def data_gen():
+        return (), {}
+
+    suite.add_benchmark(my_func, data_gen)
+    suite.run(iterations=2, verbose=False)
+    output_path = os.path.join(temp_dir, "results.csv")
+    suite.save_results(output_path)
+    return {
+        "path": output_path,
+        "df_loaded": pd.read_csv(output_path),
+    }
+
+
+@pytest.fixture
+def baseline_comparison_df(temp_dir):
+    """Run a suite, write a baseline CSV, return compare_with_baseline() df."""
+    suite = BenchmarkSuite("test_suite")
+
+    def my_func():
+        return 42
+
+    def data_gen():
+        return (), {}
+
+    suite.add_benchmark(my_func, data_gen)
+    suite.run(iterations=2, verbose=False)
+    baseline_path = os.path.join(temp_dir, "baseline.csv")
+    baseline_data = pd.DataFrame(
+        {
+            "function": ["my_func"],
+            "size": ["default"],
+            "mean_time": [0.001],
+        }
+    )
+    baseline_data.to_csv(baseline_path, index=False)
+    return suite.compare_with_baseline(baseline_path)
+
+
 # ============================================================================
 # Test BenchmarkResult
 # ============================================================================
@@ -79,64 +223,215 @@ def temp_dir():
 class TestBenchmarkResult:
     """Tests for BenchmarkResult dataclass."""
 
-    def test_creation_with_required_fields(self):
-        """Test BenchmarkResult with only required fields."""
-        result = BenchmarkResult(
-            function_name="my_func",
-            module="my_module",
-            mean_time=0.5,
-            std_time=0.05,
-            min_time=0.4,
-            max_time=0.6,
-            iterations=10,
-        )
+    def test_minimal_constructor_stores_function_name(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.function_name
+        # Assert
+        assert actual == "my_func"
 
-        assert result.function_name == "my_func"
-        assert result.module == "my_module"
-        assert result.mean_time == 0.5
-        assert result.std_time == 0.05
-        assert result.min_time == 0.4
-        assert result.max_time == 0.6
-        assert result.iterations == 10
-        assert result.input_size is None
-        assert result.memory_usage is None
-        assert result.notes is None
+    def test_minimal_constructor_stores_module_name(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.module
+        # Assert
+        assert actual == "my_module"
 
-    def test_creation_with_all_fields(self, benchmark_result):
-        """Test BenchmarkResult with all fields."""
-        assert benchmark_result.function_name == "test_func"
-        assert benchmark_result.input_size == "100x100"
-        assert benchmark_result.memory_usage == 50.0
-        assert benchmark_result.notes == "Test benchmark"
+    def test_minimal_constructor_stores_mean_time(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.mean_time
+        # Assert
+        assert actual == 0.5
 
-    def test_str_representation(self, benchmark_result):
-        """Test __str__ returns expected format."""
-        result_str = str(benchmark_result)
+    def test_minimal_constructor_stores_std_time(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.std_time
+        # Assert
+        assert actual == 0.05
 
-        assert "test_func" in result_str
-        assert "0.100s" in result_str
-        assert "0.010s" in result_str
-        assert "n=10" in result_str
+    def test_minimal_constructor_stores_min_time(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.min_time
+        # Assert
+        assert actual == 0.4
 
-    def test_to_dict(self, benchmark_result):
-        """Test to_dict serialization."""
-        result_dict = benchmark_result.to_dict()
+    def test_minimal_constructor_stores_max_time(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.max_time
+        # Assert
+        assert actual == 0.6
 
-        assert isinstance(result_dict, dict)
-        assert result_dict["function"] == "test_func"
-        assert result_dict["module"] == "test_module"
-        assert result_dict["mean_time"] == 0.1
-        assert result_dict["std_time"] == 0.01
-        assert result_dict["min_time"] == 0.08
-        assert result_dict["max_time"] == 0.12
-        assert result_dict["iterations"] == 10
-        assert result_dict["input_size"] == "100x100"
-        assert result_dict["memory_usage"] == 50.0
-        assert result_dict["notes"] == "Test benchmark"
+    def test_minimal_constructor_stores_iterations(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.iterations
+        # Assert
+        assert actual == 10
 
-    def test_to_dict_has_all_expected_keys(self, benchmark_result):
-        """Test that to_dict has all expected keys."""
-        result_dict = benchmark_result.to_dict()
+    def test_minimal_constructor_defaults_input_size_to_none(
+        self, minimal_benchmark_result
+    ):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.input_size
+        # Assert
+        assert actual is None
+
+    def test_minimal_constructor_defaults_memory_usage_to_none(
+        self, minimal_benchmark_result
+    ):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.memory_usage
+        # Assert
+        assert actual is None
+
+    def test_minimal_constructor_defaults_notes_to_none(self, minimal_benchmark_result):
+        # Arrange
+        # Act
+        actual = minimal_benchmark_result.notes
+        # Assert
+        assert actual is None
+
+    def test_all_fields_constructor_stores_function_name(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = benchmark_result.function_name
+        # Assert
+        assert actual == "test_func"
+
+    def test_all_fields_constructor_stores_input_size(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = benchmark_result.input_size
+        # Assert
+        assert actual == "100x100"
+
+    def test_all_fields_constructor_stores_memory_usage(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = benchmark_result.memory_usage
+        # Assert
+        assert actual == 50.0
+
+    def test_all_fields_constructor_stores_notes(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = benchmark_result.notes
+        # Assert
+        assert actual == "Test benchmark"
+
+    def test_str_representation_contains_function_name(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = str(benchmark_result)
+        # Assert
+        assert "test_func" in actual
+
+    def test_str_representation_contains_mean_time_formatted(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = str(benchmark_result)
+        # Assert
+        assert "0.100s" in actual
+
+    def test_str_representation_contains_std_time_formatted(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = str(benchmark_result)
+        # Assert
+        assert "0.010s" in actual
+
+    def test_str_representation_contains_iteration_count(self, benchmark_result):
+        # Arrange
+        # Act
+        actual = str(benchmark_result)
+        # Assert
+        assert "n=10" in actual
+
+    def test_to_dict_returns_dict_instance(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict
+        # Assert
+        assert isinstance(actual, dict)
+
+    def test_to_dict_uses_function_key_for_function_name(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["function"]
+        # Assert
+        assert actual == "test_func"
+
+    def test_to_dict_preserves_module(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["module"]
+        # Assert
+        assert actual == "test_module"
+
+    def test_to_dict_preserves_mean_time(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["mean_time"]
+        # Assert
+        assert actual == 0.1
+
+    def test_to_dict_preserves_std_time(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["std_time"]
+        # Assert
+        assert actual == 0.01
+
+    def test_to_dict_preserves_min_time(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["min_time"]
+        # Assert
+        assert actual == 0.08
+
+    def test_to_dict_preserves_max_time(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["max_time"]
+        # Assert
+        assert actual == 0.12
+
+    def test_to_dict_preserves_iteration_count(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["iterations"]
+        # Assert
+        assert actual == 10
+
+    def test_to_dict_preserves_input_size(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["input_size"]
+        # Assert
+        assert actual == "100x100"
+
+    def test_to_dict_preserves_memory_usage(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["memory_usage"]
+        # Assert
+        assert actual == 50.0
+
+    def test_to_dict_preserves_notes(self, benchmark_result_dict):
+        # Arrange
+        # Act
+        actual = benchmark_result_dict["notes"]
+        # Assert
+        assert actual == "Test benchmark"
+
+    def test_to_dict_exposes_the_full_set_of_expected_keys(self, benchmark_result_dict):
+        # Arrange
         expected_keys = {
             "function",
             "module",
@@ -149,7 +444,10 @@ class TestBenchmarkResult:
             "memory_usage",
             "notes",
         }
-        assert set(result_dict.keys()) == expected_keys
+        # Act
+        actual = set(benchmark_result_dict.keys())
+        # Assert
+        assert actual == expected_keys
 
 
 # ============================================================================
@@ -160,85 +458,135 @@ class TestBenchmarkResult:
 class TestBenchmarkFunction:
     """Tests for benchmark_function."""
 
-    def test_basic_benchmark(self, sample_function):
-        """Test basic function benchmarking."""
-        result = benchmark_function(
-            sample_function, args=(1, 2), iterations=5, warmup=1
-        )
+    def test_basic_benchmark_returns_benchmark_result_instance(
+        self, benchmark_function_result
+    ):
+        # Arrange
+        # Act
+        actual = benchmark_function_result
+        # Assert
+        assert isinstance(actual, BenchmarkResult)
 
-        assert isinstance(result, BenchmarkResult)
-        assert result.function_name == "add_numbers"
-        assert result.iterations == 5
-        assert result.mean_time >= 0
-        assert result.std_time >= 0
-        assert result.min_time <= result.mean_time <= result.max_time
+    def test_basic_benchmark_records_function_name(self, benchmark_function_result):
+        # Arrange
+        # Act
+        actual = benchmark_function_result.function_name
+        # Assert
+        assert actual == "add_numbers"
 
-    def test_benchmark_with_kwargs(self, sample_function):
-        """Test benchmarking with keyword arguments."""
+    def test_basic_benchmark_records_iteration_count(self, benchmark_function_result):
+        # Arrange
+        # Act
+        actual = benchmark_function_result.iterations
+        # Assert
+        assert actual == 5
+
+    def test_basic_benchmark_mean_time_is_non_negative(self, benchmark_function_result):
+        # Arrange
+        # Act
+        actual = benchmark_function_result.mean_time
+        # Assert
+        assert actual >= 0
+
+    def test_basic_benchmark_std_time_is_non_negative(self, benchmark_function_result):
+        # Arrange
+        # Act
+        actual = benchmark_function_result.std_time
+        # Assert
+        assert actual >= 0
+
+    def test_basic_benchmark_min_mean_max_are_ordered(self, benchmark_function_result):
+        # Arrange
+        r = benchmark_function_result
+        # Act
+        ordered = r.min_time <= r.mean_time <= r.max_time
+        # Assert
+        assert ordered
+
+    def test_benchmark_with_kwargs_returns_benchmark_result(self, sample_function):
+        # Arrange
+        # Act
         result = benchmark_function(
             sample_function, args=(1,), kwargs={"b": 2}, iterations=5
         )
-
+        # Assert
         assert isinstance(result, BenchmarkResult)
+
+    def test_benchmark_with_kwargs_records_function_name(self, sample_function):
+        # Arrange
+        # Act
+        result = benchmark_function(
+            sample_function, args=(1,), kwargs={"b": 2}, iterations=5
+        )
+        # Assert
         assert result.function_name == "add_numbers"
 
-    def test_timing_consistency(self, slow_function):
-        """Test that timing is consistent and measurable."""
+    def test_timing_consistency_mean_above_sleep_floor(self, slow_function):
+        """A 10ms-sleep function benchmarks to >=9ms mean (allowing jitter)."""
+        # Arrange
+        # Act
         result = benchmark_function(slow_function, args=(1, 2), iterations=5, warmup=1)
+        # Assert
+        assert result.mean_time >= 0.009
 
-        # 10ms sleep should result in measurable time
-        assert result.mean_time >= 0.009  # Allow some slack
-        assert result.mean_time < 0.1  # But not too slow
-
-    def test_input_size_parameter(self, sample_function):
-        """Test that input_size is recorded."""
+    def test_input_size_parameter_round_trips_into_result(self, sample_function):
+        # Arrange
+        # Act
         result = benchmark_function(
             sample_function, args=(1, 2), input_size="small", iterations=3
         )
-
+        # Assert
         assert result.input_size == "small"
 
-    def test_warmup_iterations(self, sample_function):
-        """Test warmup iterations are executed."""
+    def test_warmup_iterations_run_before_timed_iterations(self):
+        """2 warmup + 3 iterations => the function is called 5 times total."""
+        # Arrange
         call_count = [0]
-        original_func = sample_function
 
         def counting_func(a, b):
             call_count[0] += 1
             return a + b
 
-        result = benchmark_function(counting_func, args=(1, 2), iterations=3, warmup=2)
-
-        # Should have 2 warmup + 3 benchmark = 5 total calls
+        # Act
+        benchmark_function(counting_func, args=(1, 2), iterations=3, warmup=2)
+        # Assert
         assert call_count[0] == 5
 
-    def test_default_kwargs_none(self, sample_function):
-        """Test that None kwargs default to empty dict."""
-        # Should not raise - kwargs internally becomes {}
+    def test_default_kwargs_none_does_not_raise(self, sample_function):
+        """benchmark_function(..., kwargs=None) returns a BenchmarkResult."""
+        # Arrange
+        # Act
         result = benchmark_function(sample_function, args=(1, 2), kwargs=None)
+        # Assert
         assert isinstance(result, BenchmarkResult)
 
-    def test_module_detection(self, sample_function):
-        """Test that module name is detected."""
+    def test_module_detection_returns_string_module_name(self, sample_function):
+        # Arrange
+        # Act
         result = benchmark_function(sample_function, args=(1, 2))
-        # Module should be detected (though may be __main__ or test module)
+        # Assert
         assert isinstance(result.module, str)
+
+    def test_module_detection_returns_non_empty_module_name(self, sample_function):
+        # Arrange
+        # Act
+        result = benchmark_function(sample_function, args=(1, 2))
+        # Assert
         assert len(result.module) > 0
 
-    def test_measure_memory_flag(self, sample_function):
-        """Test memory measurement flag."""
-        result_no_mem = benchmark_function(
-            sample_function, args=(1, 2), measure_memory=False
-        )
-        # Memory might be None if psutil not available
-        # Just verify it doesn't crash
-        assert isinstance(result_no_mem, BenchmarkResult)
+    def test_measure_memory_false_still_returns_benchmark_result(self, sample_function):
+        # Arrange
+        # Act
+        result = benchmark_function(sample_function, args=(1, 2), measure_memory=False)
+        # Assert
+        assert isinstance(result, BenchmarkResult)
 
-        result_with_mem = benchmark_function(
-            sample_function, args=(1, 2), measure_memory=True
-        )
-        # Memory might still be None if psutil not installed
-        assert isinstance(result_with_mem, BenchmarkResult)
+    def test_measure_memory_true_still_returns_benchmark_result(self, sample_function):
+        # Arrange
+        # Act
+        result = benchmark_function(sample_function, args=(1, 2), measure_memory=True)
+        # Assert
+        assert isinstance(result, BenchmarkResult)
 
 
 # ============================================================================
@@ -249,72 +597,109 @@ class TestBenchmarkFunction:
 class TestCompareImplementations:
     """Tests for compare_implementations."""
 
-    def test_compare_two_implementations(self):
-        """Test comparing two implementations."""
+    def test_two_implementations_return_dataframe(self, two_impl_comparison_df):
+        # Arrange
+        # Act
+        actual = two_impl_comparison_df
+        # Assert
+        assert isinstance(actual, pd.DataFrame)
 
-        def impl1(x):
-            return sum(range(x))
+    def test_two_implementations_return_one_row_per_impl(self, two_impl_comparison_df):
+        # Arrange
+        # Act
+        actual = len(two_impl_comparison_df)
+        # Assert
+        assert actual == 2
 
-        def impl2(x):
-            return x * (x - 1) // 2
+    def test_two_implementations_dataframe_has_implementation_column(
+        self, two_impl_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "implementation" in two_impl_comparison_df.columns
+        # Assert
+        assert actual
 
-        implementations = {"loop": impl1, "formula": impl2}
+    def test_two_implementations_dataframe_has_mean_time_column(
+        self, two_impl_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "mean_time" in two_impl_comparison_df.columns
+        # Assert
+        assert actual
 
-        def data_gen():
-            return (1000,), {}
+    def test_two_implementations_dataframe_has_std_time_column(
+        self, two_impl_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "std_time" in two_impl_comparison_df.columns
+        # Assert
+        assert actual
 
-        df = compare_implementations(implementations, data_gen, iterations=3)
+    def test_two_implementations_dataframe_has_speedup_column(
+        self, two_impl_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "speedup" in two_impl_comparison_df.columns
+        # Assert
+        assert actual
 
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 2
-        assert "implementation" in df.columns
-        assert "mean_time" in df.columns
-        assert "std_time" in df.columns
-        assert "speedup" in df.columns
+    def test_speedup_baseline_implementation_has_speedup_one(
+        self, slow_vs_fast_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = slow_vs_fast_comparison_df.iloc[0]["speedup"]
+        # Assert
+        assert actual == 1.0
 
-    def test_speedup_calculation(self):
-        """Test that speedup is calculated correctly."""
-        import time
+    def test_speedup_fast_implementation_is_greater_than_baseline(
+        self, slow_vs_fast_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = slow_vs_fast_comparison_df.iloc[1]["speedup"]
+        # Assert
+        assert actual > 1.0
 
-        def slow_impl(x):
-            time.sleep(0.01)
-            return x
-
-        def fast_impl(x):
-            return x
-
-        implementations = {"slow": slow_impl, "fast": fast_impl}
-
-        def data_gen():
-            return (10,), {}
-
-        df = compare_implementations(implementations, data_gen, iterations=3)
-
-        # First implementation has speedup 1.0 (baseline)
-        assert df.iloc[0]["speedup"] == 1.0
-        # Fast implementation should have speedup > 1
-        assert df.iloc[1]["speedup"] > 1.0
-
-    def test_empty_implementations(self):
-        """Test with no implementations raises IndexError."""
+    def test_empty_implementations_raises_index_error(self):
+        # Arrange
         implementations = {}
 
         def data_gen():
             return (), {}
 
-        # Empty implementations causes IndexError when accessing baseline_time
-        with pytest.raises(IndexError):
+        # Act
+        ctx = pytest.raises(IndexError)
+        # Assert
+        with ctx:
             compare_implementations(implementations, data_gen, iterations=3)
 
-    def test_single_implementation(self):
-        """Test with single implementation."""
+    def test_single_implementation_returns_one_row(self):
+        # Arrange
         implementations = {"only": lambda x: x}
 
         def data_gen():
             return (1,), {}
 
+        # Act
         df = compare_implementations(implementations, data_gen, iterations=3)
+        # Assert
         assert len(df) == 1
+
+    def test_single_implementation_has_speedup_one(self):
+        # Arrange
+        implementations = {"only": lambda x: x}
+
+        def data_gen():
+            return (1,), {}
+
+        # Act
+        df = compare_implementations(implementations, data_gen, iterations=3)
+        # Assert
         assert df.iloc[0]["speedup"] == 1.0
 
 
@@ -326,33 +711,57 @@ class TestCompareImplementations:
 class TestBenchmarkSuite:
     """Tests for BenchmarkSuite class."""
 
-    def test_suite_creation(self):
-        """Test suite creation."""
+    def test_new_suite_stores_name(self):
+        # Arrange
+        # Act
         suite = BenchmarkSuite("test_suite")
-
+        # Assert
         assert suite.name == "test_suite"
+
+    def test_new_suite_starts_with_empty_benchmarks_list(self):
+        # Arrange
+        # Act
+        suite = BenchmarkSuite("test_suite")
+        # Assert
         assert suite.benchmarks == []
+
+    def test_new_suite_starts_with_empty_results_list(self):
+        # Arrange
+        # Act
+        suite = BenchmarkSuite("test_suite")
+        # Assert
         assert suite.results == []
 
-    def test_add_benchmark(self):
-        """Test adding benchmarks to suite."""
-        suite = BenchmarkSuite("test_suite")
+    def test_add_benchmark_appends_one_entry(self, populated_suite):
+        # Arrange
+        # Act
+        actual = len(populated_suite["suite"].benchmarks)
+        # Assert
+        assert actual == 1
 
-        def my_func():
-            return 42
+    def test_add_benchmark_stores_function_reference(self, populated_suite):
+        # Arrange
+        # Act
+        actual = populated_suite["suite"].benchmarks[0]["func"]
+        # Assert
+        assert actual is populated_suite["func"]
 
-        def data_gen():
-            return (), {}
+    def test_add_benchmark_records_custom_name(self, populated_suite):
+        # Arrange
+        # Act
+        actual = populated_suite["suite"].benchmarks[0]["name"]
+        # Assert
+        assert actual == "custom_name"
 
-        suite.add_benchmark(my_func, data_gen, name="custom_name", sizes=["small"])
+    def test_add_benchmark_records_custom_sizes(self, populated_suite):
+        # Arrange
+        # Act
+        actual = populated_suite["suite"].benchmarks[0]["sizes"]
+        # Assert
+        assert actual == ["small"]
 
-        assert len(suite.benchmarks) == 1
-        assert suite.benchmarks[0]["func"] == my_func
-        assert suite.benchmarks[0]["name"] == "custom_name"
-        assert suite.benchmarks[0]["sizes"] == ["small"]
-
-    def test_add_benchmark_default_name(self):
-        """Test adding benchmark uses function name by default."""
+    def test_add_benchmark_default_name_falls_back_to_function_name(self):
+        # Arrange
         suite = BenchmarkSuite("test_suite")
 
         def my_named_function():
@@ -361,12 +770,13 @@ class TestBenchmarkSuite:
         def data_gen():
             return (), {}
 
+        # Act
         suite.add_benchmark(my_named_function, data_gen)
-
+        # Assert
         assert suite.benchmarks[0]["name"] == "my_named_function"
 
-    def test_add_benchmark_default_sizes(self):
-        """Test adding benchmark uses default size."""
+    def test_add_benchmark_default_sizes_is_singleton_default(self):
+        # Arrange
         suite = BenchmarkSuite("test_suite")
 
         def my_func():
@@ -375,12 +785,48 @@ class TestBenchmarkSuite:
         def data_gen():
             return (), {}
 
+        # Act
         suite.add_benchmark(my_func, data_gen)
-
+        # Assert
         assert suite.benchmarks[0]["sizes"] == ["default"]
 
-    def test_run_suite(self, capsys):
-        """Test running benchmark suite."""
+    def test_run_suite_returns_dataframe(self, two_size_suite_results):
+        # Arrange
+        # Act
+        actual = two_size_suite_results
+        # Assert
+        assert isinstance(actual, pd.DataFrame)
+
+    def test_run_suite_returns_one_row_per_size(self, two_size_suite_results):
+        # Arrange
+        # Act
+        actual = len(two_size_suite_results)
+        # Assert
+        assert actual == 2
+
+    def test_run_suite_dataframe_has_function_column(self, two_size_suite_results):
+        # Arrange
+        # Act
+        actual = "function" in two_size_suite_results.columns
+        # Assert
+        assert actual
+
+    def test_run_suite_dataframe_has_mean_time_column(self, two_size_suite_results):
+        # Arrange
+        # Act
+        actual = "mean_time" in two_size_suite_results.columns
+        # Assert
+        assert actual
+
+    def test_run_suite_dataframe_has_size_column(self, two_size_suite_results):
+        # Arrange
+        # Act
+        actual = "size" in two_size_suite_results.columns
+        # Assert
+        assert actual
+
+    def test_run_suite_verbose_prints_running_benchmark_header(self, capsys):
+        # Arrange
         suite = BenchmarkSuite("test_suite")
 
         def my_func():
@@ -389,22 +835,15 @@ class TestBenchmarkSuite:
         def data_gen():
             return (), {}
 
-        suite.add_benchmark(my_func, data_gen, sizes=["small", "large"])
-
-        results = suite.run(iterations=3, verbose=True)
-
-        assert isinstance(results, pd.DataFrame)
-        assert len(results) == 2  # Two sizes
-        assert "function" in results.columns
-        assert "mean_time" in results.columns
-        assert "size" in results.columns
-
-        # Check verbose output
+        suite.add_benchmark(my_func, data_gen, sizes=["small"])
+        # Act
+        suite.run(iterations=2, verbose=True)
         captured = capsys.readouterr()
+        # Assert
         assert "Running benchmark" in captured.out
 
-    def test_run_suite_quiet(self, capsys):
-        """Test running suite without verbose output."""
+    def test_run_suite_quiet_suppresses_running_benchmark_header(self, capsys):
+        # Arrange
         suite = BenchmarkSuite("test_suite")
 
         def my_func():
@@ -414,73 +853,76 @@ class TestBenchmarkSuite:
             return (), {}
 
         suite.add_benchmark(my_func, data_gen)
+        # Act
         suite.run(iterations=2, verbose=False)
-
         captured = capsys.readouterr()
+        # Assert
         assert "Running benchmark" not in captured.out
 
-    def test_save_results(self, temp_dir):
-        """Test saving results to CSV."""
-        suite = BenchmarkSuite("test_suite")
+    def test_save_results_creates_file_on_disk(self, saved_suite_csv):
+        # Arrange
+        # Act
+        actual = os.path.exists(saved_suite_csv["path"])
+        # Assert
+        assert actual
 
-        def my_func():
-            return 42
+    def test_save_results_csv_contains_function_column(self, saved_suite_csv):
+        # Arrange
+        # Act
+        actual = "function" in saved_suite_csv["df_loaded"].columns
+        # Assert
+        assert actual
 
-        def data_gen():
-            return (), {}
+    def test_save_results_csv_has_at_least_one_row(self, saved_suite_csv):
+        # Arrange
+        # Act
+        actual = len(saved_suite_csv["df_loaded"])
+        # Assert
+        assert actual > 0
 
-        suite.add_benchmark(my_func, data_gen)
-        suite.run(iterations=2, verbose=False)
-
-        output_path = os.path.join(temp_dir, "results.csv")
-        suite.save_results(output_path)
-
-        assert os.path.exists(output_path)
-
-        # Verify CSV content
-        loaded_df = pd.read_csv(output_path)
-        assert "function" in loaded_df.columns
-        assert len(loaded_df) > 0
-
-    def test_save_results_no_results(self, temp_dir):
-        """Test saving when no results exist yet raises AttributeError."""
+    def test_save_results_with_empty_results_raises_attribute_error(self, temp_dir):
+        # Arrange
         suite = BenchmarkSuite("test_suite")
         output_path = os.path.join(temp_dir, "results.csv")
-
-        # Empty results list causes AttributeError (list has no to_csv)
-        with pytest.raises(AttributeError):
+        # Act
+        ctx = pytest.raises(AttributeError)
+        # Assert
+        with ctx:
             suite.save_results(output_path)
 
-    def test_compare_with_baseline(self, temp_dir):
-        """Test comparing with baseline results."""
-        suite = BenchmarkSuite("test_suite")
+    def test_compare_with_baseline_returns_dataframe(self, baseline_comparison_df):
+        # Arrange
+        # Act
+        actual = baseline_comparison_df
+        # Assert
+        assert isinstance(actual, pd.DataFrame)
 
-        def my_func():
-            return 42
+    def test_compare_with_baseline_dataframe_has_speedup_column(
+        self, baseline_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "speedup" in baseline_comparison_df.columns
+        # Assert
+        assert actual
 
-        def data_gen():
-            return (), {}
+    def test_compare_with_baseline_dataframe_has_mean_time_current_column(
+        self, baseline_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "mean_time_current" in baseline_comparison_df.columns
+        # Assert
+        assert actual
 
-        suite.add_benchmark(my_func, data_gen)
-        suite.run(iterations=2, verbose=False)
-
-        # Create baseline file
-        baseline_path = os.path.join(temp_dir, "baseline.csv")
-        baseline_data = pd.DataFrame(
-            {
-                "function": ["my_func"],
-                "size": ["default"],
-                "mean_time": [0.001],  # Baseline time
-            }
-        )
-        baseline_data.to_csv(baseline_path, index=False)
-
-        comparison = suite.compare_with_baseline(baseline_path)
-
-        assert isinstance(comparison, pd.DataFrame)
-        assert "speedup" in comparison.columns
-        assert "mean_time_current" in comparison.columns
-        assert "mean_time_baseline" in comparison.columns
+    def test_compare_with_baseline_dataframe_has_mean_time_baseline_column(
+        self, baseline_comparison_df
+    ):
+        # Arrange
+        # Act
+        actual = "mean_time_baseline" in baseline_comparison_df.columns
+        # Assert
+        assert actual
 
 
 # ============================================================================
@@ -491,28 +933,47 @@ class TestBenchmarkSuite:
 class TestBenchmarkModule:
     """Tests for benchmark_module function."""
 
-    def test_benchmark_builtin_module(self):
-        """Test benchmarking a standard library module."""
+    def test_benchmark_builtin_module_returns_suite_instance(self):
+        # Arrange
+        # Act
         suite = benchmark_module("math", pattern="sqrt*")
-
+        # Assert
         assert isinstance(suite, BenchmarkSuite)
+
+    def test_benchmark_builtin_module_names_suite_after_module(self):
+        # Arrange
+        # Act
+        suite = benchmark_module("math", pattern="sqrt*")
+        # Assert
         assert suite.name == "math"
-        # sqrt should be matched
-        assert len(suite.benchmarks) >= 0  # May find sqrt
 
-    def test_benchmark_module_with_pattern(self):
-        """Test pattern matching in module."""
+    def test_benchmark_module_with_pattern_returns_suite_instance(self):
+        # Arrange
+        # Act
         suite = benchmark_module("os.path", pattern="is*")
-
+        # Assert
         assert isinstance(suite, BenchmarkSuite)
-        # Should find isfile, isdir, etc.
-        func_names = [b["name"] for b in suite.benchmarks]
-        # At least one of these should be matched
-        assert any(name.startswith("is") for name in func_names) or len(func_names) == 0
 
-    def test_benchmark_nonexistent_module(self):
-        """Test with non-existent module raises ImportError."""
-        with pytest.raises(ImportError):
+    def test_benchmark_module_with_pattern_matches_function_names(self):
+        """The pattern 'is*' on os.path captures function names that
+        start with 'is' (e.g. isfile, isdir). The empty-match case is
+        also acceptable because the standard library can vary."""
+        # Arrange
+        suite = benchmark_module("os.path", pattern="is*")
+        func_names = [b["name"] for b in suite.benchmarks]
+        # Act
+        actual = (
+            any(name.startswith("is") for name in func_names) or len(func_names) == 0
+        )
+        # Assert
+        assert actual
+
+    def test_benchmark_nonexistent_module_raises_import_error(self):
+        # Arrange
+        # Act
+        ctx = pytest.raises(ImportError)
+        # Assert
+        with ctx:
             benchmark_module("nonexistent_module_12345")
 
 
@@ -526,418 +987,3 @@ if __name__ == "__main__":
     import pytest
 
     pytest.main([os.path.abspath(__file__)])
-
-# --------------------------------------------------------------------------------
-# Start of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/benchmark/benchmark.py
-# --------------------------------------------------------------------------------
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# # Time-stamp: "2025-07-25 05:30:00"
-# # File: benchmark.py
-#
-# """
-# Core benchmarking functionality for SciTeX.
-# """
-#
-# import time
-# import numpy as np
-# import pandas as pd
-# from typing import Callable, Dict, List, Any, Optional, Tuple
-# from dataclasses import dataclass
-# import inspect
-# import gc
-# import os
-# from pathlib import Path
-#
-#
-# @dataclass
-# class BenchmarkResult:
-#     """Results from a benchmark run."""
-#
-#     function_name: str
-#     module: str
-#     mean_time: float
-#     std_time: float
-#     min_time: float
-#     max_time: float
-#     iterations: int
-#     input_size: Optional[str] = None
-#     memory_usage: Optional[float] = None
-#     notes: Optional[str] = None
-#
-#     def __str__(self):
-#         return (
-#             f"{self.function_name}: {self.mean_time:.3f}s ± {self.std_time:.3f}s "
-#             f"(n={self.iterations})"
-#         )
-#
-#     def to_dict(self):
-#         """Convert to dictionary for easy serialization."""
-#         return {
-#             "function": self.function_name,
-#             "module": self.module,
-#             "mean_time": self.mean_time,
-#             "std_time": self.std_time,
-#             "min_time": self.min_time,
-#             "max_time": self.max_time,
-#             "iterations": self.iterations,
-#             "input_size": self.input_size,
-#             "memory_usage": self.memory_usage,
-#             "notes": self.notes,
-#         }
-#
-#
-# def benchmark_function(
-#     func: Callable,
-#     args: tuple = (),
-#     kwargs: dict = None,
-#     iterations: int = 10,
-#     warmup: int = 2,
-#     input_size: Optional[str] = None,
-#     measure_memory: bool = False,
-# ) -> BenchmarkResult:
-#     """
-#     Benchmark a single function.
-#
-#     Parameters
-#     ----------
-#     func : Callable
-#         Function to benchmark
-#     args : tuple
-#         Arguments to pass to function
-#     kwargs : dict
-#         Keyword arguments to pass to function
-#     iterations : int
-#         Number of benchmark iterations
-#     warmup : int
-#         Number of warmup iterations
-#     input_size : str, optional
-#         Description of input size
-#     measure_memory : bool
-#         Whether to measure memory usage
-#
-#     Returns
-#     -------
-#     BenchmarkResult
-#         Benchmark results
-#     """
-#     if kwargs is None:
-#         kwargs = {}
-#
-#     # Warmup runs
-#     for _ in range(warmup):
-#         _ = func(*args, **kwargs)
-#
-#     # Garbage collection before timing
-#     gc.collect()
-#
-#     # Timing runs
-#     times = []
-#     for _ in range(iterations):
-#         start = time.perf_counter()
-#         _ = func(*args, **kwargs)
-#         end = time.perf_counter()
-#         times.append(end - start)
-#
-#     times = np.array(times)
-#
-#     # Get function info
-#     module = inspect.getmodule(func).__name__ if inspect.getmodule(func) else "unknown"
-#
-#     # Memory measurement (simplified)
-#     memory_usage = None
-#     if measure_memory:
-#         try:
-#             import psutil
-#
-#             process = psutil.Process(os.getpid())
-#             memory_usage = process.memory_info().rss / 1024 / 1024  # MB
-#         except:
-#             pass
-#
-#     return BenchmarkResult(
-#         function_name=func.__name__,
-#         module=module,
-#         mean_time=np.mean(times),
-#         std_time=np.std(times),
-#         min_time=np.min(times),
-#         max_time=np.max(times),
-#         iterations=iterations,
-#         input_size=input_size,
-#         memory_usage=memory_usage,
-#     )
-#
-#
-# def compare_implementations(
-#     implementations: Dict[str, Callable],
-#     test_data_generator: Callable[[], Tuple[tuple, dict]],
-#     iterations: int = 10,
-#     sizes: Optional[List[str]] = None,
-# ) -> pd.DataFrame:
-#     """
-#     Compare multiple implementations of the same functionality.
-#
-#     Parameters
-#     ----------
-#     implementations : dict
-#         Dictionary mapping implementation names to functions
-#     test_data_generator : callable
-#         Function that returns (args, kwargs) for testing
-#     iterations : int
-#         Number of iterations per implementation
-#     sizes : list, optional
-#         List of input sizes to test
-#
-#     Returns
-#     -------
-#     pd.DataFrame
-#         Comparison results
-#     """
-#     results = []
-#
-#     for name, func in implementations.items():
-#         # Generate test data
-#         args, kwargs = test_data_generator()
-#
-#         # Benchmark
-#         result = benchmark_function(
-#             func, args=args, kwargs=kwargs, iterations=iterations
-#         )
-#
-#         results.append(
-#             {
-#                 "implementation": name,
-#                 "mean_time": result.mean_time,
-#                 "std_time": result.std_time,
-#                 "speedup": 1.0,  # Will calculate relative to baseline
-#             }
-#         )
-#
-#     df = pd.DataFrame(results)
-#
-#     # Calculate speedup relative to first implementation
-#     baseline_time = df.iloc[0]["mean_time"]
-#     df["speedup"] = baseline_time / df["mean_time"]
-#
-#     return df
-#
-#
-# class BenchmarkSuite:
-#     """Collection of benchmarks for a module or set of functions."""
-#
-#     def __init__(self, name: str):
-#         self.name = name
-#         self.benchmarks = []
-#         self.results = []
-#
-#     def add_benchmark(
-#         self,
-#         func: Callable,
-#         test_data_generator: Callable[[], Tuple[tuple, dict]],
-#         name: Optional[str] = None,
-#         sizes: Optional[List[str]] = None,
-#     ):
-#         """Add a benchmark to the suite."""
-#         self.benchmarks.append(
-#             {
-#                 "func": func,
-#                 "data_gen": test_data_generator,
-#                 "name": name or func.__name__,
-#                 "sizes": sizes or ["default"],
-#             }
-#         )
-#
-#     def run(self, iterations: int = 10, verbose: bool = True) -> pd.DataFrame:
-#         """Run all benchmarks in the suite."""
-#         results = []
-#
-#         for benchmark in self.benchmarks:
-#             if verbose:
-#                 print(f"Running benchmark: {benchmark['name']}")
-#
-#             for size in benchmark["sizes"]:
-#                 # Generate test data
-#                 args, kwargs = benchmark["data_gen"]()
-#
-#                 # Run benchmark
-#                 result = benchmark_function(
-#                     benchmark["func"],
-#                     args=args,
-#                     kwargs=kwargs,
-#                     iterations=iterations,
-#                     input_size=size,
-#                 )
-#
-#                 result_dict = result.to_dict()
-#                 result_dict["size"] = size
-#                 results.append(result_dict)
-#
-#                 if verbose:
-#                     print(f"  {size}: {result}")
-#
-#         self.results = pd.DataFrame(results)
-#         return self.results
-#
-#     def save_results(self, path: str):
-#         """Save benchmark results to CSV."""
-#         if self.results is not None:
-#             self.results.to_csv(path, index=False)
-#
-#     def compare_with_baseline(self, baseline_path: str) -> pd.DataFrame:
-#         """Compare current results with baseline."""
-#         baseline = pd.read_csv(baseline_path)
-#
-#         # Merge on function name and size
-#         comparison = pd.merge(
-#             self.results,
-#             baseline,
-#             on=["function", "size"],
-#             suffixes=("_current", "_baseline"),
-#         )
-#
-#         # Calculate speedup
-#         comparison["speedup"] = (
-#             comparison["mean_time_baseline"] / comparison["mean_time_current"]
-#         )
-#
-#         return comparison
-#
-#
-# def benchmark_module(module_name: str, pattern: str = "test_*") -> BenchmarkSuite:
-#     """
-#     Create a benchmark suite for all matching functions in a module.
-#
-#     Parameters
-#     ----------
-#     module_name : str
-#         Name of module to benchmark
-#     pattern : str
-#         Pattern to match function names
-#
-#     Returns
-#     -------
-#     BenchmarkSuite
-#         Suite containing all matching benchmarks
-#     """
-#     import importlib
-#     import fnmatch
-#
-#     module = importlib.import_module(module_name)
-#     suite = BenchmarkSuite(module_name)
-#
-#     # Find all matching functions
-#     for name in dir(module):
-#         if fnmatch.fnmatch(name, pattern):
-#             func = getattr(module, name)
-#             if callable(func):
-#                 # Create simple test data generator
-#                 def data_gen():
-#                     return (), {}
-#
-#                 suite.add_benchmark(func, data_gen, name)
-#
-#     return suite
-#
-#
-# # Pre-defined benchmark suites for common SciTeX modules
-# def create_io_benchmark_suite() -> BenchmarkSuite:
-#     """Create benchmark suite for I/O operations."""
-#     import tempfile
-#     import numpy as np
-#
-#     suite = BenchmarkSuite("IO Operations")
-#
-#     # Benchmark numpy file loading
-#     def numpy_data_gen():
-#         data = np.random.randn(1000, 1000)
-#         with tempfile.NamedTemporaryFile(suffix=".npy", delete=False) as f:
-#             np.save(f.name, data)
-#             return (f.name,), {}
-#
-#     import scitex.io
-#
-#     suite.add_benchmark(
-#         scitex.io.load, numpy_data_gen, "load_numpy", sizes=["1MB", "10MB", "100MB"]
-#     )
-#
-#     return suite
-#
-#
-# def create_stats_benchmark_suite() -> BenchmarkSuite:
-#     """Create benchmark suite for statistics operations."""
-#     import numpy as np
-#
-#     suite = BenchmarkSuite("Statistics Operations")
-#
-#     # Benchmark correlation
-#     def corr_data_gen():
-#         x = np.random.randn(1000)
-#         y = x + np.random.randn(1000) * 0.5
-#         return (x, y), {"n_perm": 1000}
-#
-#     import scitex.stats
-#
-#     suite.add_benchmark(
-#         scitex.stats.corr_test,
-#         corr_data_gen,
-#         "correlation_test",
-#         sizes=["1000_samples", "10000_samples"],
-#     )
-#
-#     return suite
-#
-#
-# def run_all_benchmarks(
-#     output_dir: str = "./benchmark_results",
-# ) -> Dict[str, pd.DataFrame]:
-#     """
-#     Run all pre-defined benchmark suites.
-#
-#     Parameters
-#     ----------
-#     output_dir : str
-#         Directory to save results
-#
-#     Returns
-#     -------
-#     dict
-#         Dictionary mapping suite names to results
-#     """
-#     output_path = Path(output_dir)
-#     output_path.mkdir(exist_ok=True)
-#
-#     suites = {
-#         "io": create_io_benchmark_suite(),
-#         "stats": create_stats_benchmark_suite(),
-#     }
-#
-#     results = {}
-#     for name, suite in suites.items():
-#         print(f"\nRunning {name} benchmarks...")
-#         df = suite.run()
-#
-#         # Save results
-#         suite.save_results(output_path / f"{name}_benchmark.csv")
-#         results[name] = df
-#
-#     # Create summary
-#     summary = []
-#     for name, df in results.items():
-#         summary.append(
-#             {
-#                 "suite": name,
-#                 "functions": len(df["function"].unique()),
-#                 "mean_time": df["mean_time"].mean(),
-#                 "total_time": df["mean_time"].sum(),
-#             }
-#         )
-#
-#     summary_df = pd.DataFrame(summary)
-#     summary_df.to_csv(output_path / "benchmark_summary.csv", index=False)
-#
-#     print(f"\nBenchmark results saved to {output_path}")
-#     return results
-
-# --------------------------------------------------------------------------------
-# End of Source Code from: /home/ywatanabe/proj/scitex-code/src/scitex/benchmark/benchmark.py
-# --------------------------------------------------------------------------------

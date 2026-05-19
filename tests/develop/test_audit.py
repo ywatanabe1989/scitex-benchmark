@@ -9,7 +9,9 @@ import shutil
 import pytest
 
 
-def test_audit_all_clean():
+def _audit_or_skip():
+    """Skip when scitex-dev isn't installed, otherwise run the package
+    audit and return True on completion (raises on violation)."""
     if shutil.which("scitex-dev") is None:
         pytest.skip(
             "scitex-dev not installed — add `scitex-dev[cli-audit]` "
@@ -17,4 +19,14 @@ def test_audit_all_clean():
         )
     from scitex_dev.testing import audit_all_for_package
 
-    audit_all_for_package('scitex-benchmark')
+    audit_all_for_package("scitex-benchmark")
+    return True
+
+
+def test_audit_all_reports_no_violations_for_scitex_benchmark():
+    # Arrange
+    # (nothing to arrange — helper handles skip+audit)
+    # Act
+    result = _audit_or_skip()
+    # Assert
+    assert result is True
