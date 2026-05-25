@@ -230,7 +230,6 @@ class LineProfiler:
         def wrapper(*args, **kwargs):
             # Get source lines
             source_lines = inspect.getsourcelines(func)[0]
-            line_times = {}
 
             # This is a simplified implementation
             # Real line profiling requires bytecode instrumentation
