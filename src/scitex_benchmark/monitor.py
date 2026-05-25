@@ -13,7 +13,6 @@ import time
 import warnings
 from collections import defaultdict, deque
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -259,7 +258,7 @@ def track_performance(func: Callable) -> Callable:
 
             process = psutil.Process()
             mem_before = process.memory_info().rss / 1024 / 1024
-        except:
+        except Exception:
             mem_before = None
 
         # Time the function
@@ -281,7 +280,7 @@ def track_performance(func: Callable) -> Callable:
                 try:
                     mem_after = process.memory_info().rss / 1024 / 1024
                     mem_delta = mem_after - mem_before
-                except:
+                except Exception:
                     pass
 
             # Estimate sizes
@@ -291,7 +290,7 @@ def track_performance(func: Callable) -> Callable:
                 args_size = sys.getsizeof(args) + sys.getsizeof(kwargs)
                 if result is not None:
                     result_size = sys.getsizeof(result)
-            except:
+            except Exception:
                 pass
 
             # Record metric

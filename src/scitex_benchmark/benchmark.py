@@ -13,7 +13,7 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -121,7 +121,7 @@ def benchmark_function(
 
             process = psutil.Process(os.getpid())
             memory_usage = process.memory_info().rss / 1024 / 1024  # MB
-        except:
+        except Exception:
             pass
 
     return BenchmarkResult(
@@ -324,9 +324,9 @@ def create_io_benchmark_suite() -> BenchmarkSuite:
             np.save(f.name, data)
             return (f.name,), {}
 
-    import scitex_io as scitex_io
+    import scitex_io
     suite.add_benchmark(
-        scitex.io.load, numpy_data_gen, "load_numpy", sizes=["1MB", "10MB", "100MB"]
+        scitex_io.load, numpy_data_gen, "load_numpy", sizes=["1MB", "10MB", "100MB"]
     )
 
     return suite
@@ -344,9 +344,9 @@ def create_stats_benchmark_suite() -> BenchmarkSuite:
         y = x + np.random.randn(1000) * 0.5
         return (x, y), {"n_perm": 1000}
 
-    import scitex_stats as scitex_stats
+    import scitex_stats
     suite.add_benchmark(
-        scitex.stats.corr_test,
+        scitex_stats.corr_test,
         corr_data_gen,
         "correlation_test",
         sizes=["1000_samples", "10000_samples"],
