@@ -46,9 +46,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../api/scitex_benchmark.html">scitex_benchmark</a></li>
-</ul>
 
         </div>
       </div>
@@ -93,8 +90,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 
-<div class="viewcode-block" id="FunctionProfiler">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.FunctionProfiler">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FunctionProfiler</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Profile individual function calls.&quot;&quot;&quot;</span>
 
@@ -103,8 +98,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">call_counts</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_times</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="FunctionProfiler.profile">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.FunctionProfiler.profile">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decorator to profile a function.</span>
@@ -143,11 +136,8 @@
 
             <span class="k">return</span> <span class="n">result</span>
 
-        <span class="k">return</span> <span class="n">wrapper</span></div>
+        <span class="k">return</span> <span class="n">wrapper</span>
 
-
-<div class="viewcode-block" id="FunctionProfiler.get_stats">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.FunctionProfiler.get_stats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get profiling statistics for a function.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">func_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles</span><span class="p">:</span>
@@ -158,11 +148,8 @@
         <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles</span><span class="p">[</span><span class="n">func_name</span><span class="p">][</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">combined</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">combined</span></div>
+        <span class="k">return</span> <span class="n">combined</span>
 
-
-<div class="viewcode-block" id="FunctionProfiler.print_stats">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.FunctionProfiler.print_stats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">print_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print profiling statistics.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">func_name</span><span class="p">:</span>
@@ -179,11 +166,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Print all functions</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">top_n</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">top_n</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="FunctionProfiler.get_report">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.FunctionProfiler.get_report">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a summary report of all profiled functions.&quot;&quot;&quot;</span>
         <span class="n">report</span> <span class="o">=</span> <span class="p">{}</span>
@@ -201,9 +185,7 @@
                 <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span>
             <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">report</span></div>
-</div>
-
+        <span class="k">return</span> <span class="n">report</span>
 
 
 <span class="c1"># Global profiler instance</span>
@@ -211,7 +193,7 @@
 
 
 <div class="viewcode-block" id="profile_function">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.profile_function">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.profile_function">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">profile_function</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator to profile a function using the global profiler.</span>
@@ -227,23 +209,18 @@
 
 
 <div class="viewcode-block" id="get_profile_report">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.get_profile_report">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.get_profile_report">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_profile_report</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get profiling report from global profiler.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_global_profiler</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span></div>
 
 
 
-<div class="viewcode-block" id="print_profile_stats">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.print_profile_stats">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">print_profile_stats</span><span class="p">(</span><span class="n">func_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Print profiling statistics from global profiler.&quot;&quot;&quot;</span>
-    <span class="n">_global_profiler</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span></div>
+    <span class="n">_global_profiler</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span>
 
 
-
-<div class="viewcode-block" id="profile_block">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.profile_block">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">profile_block</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -271,12 +248,11 @@
         <span class="n">s</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
         <span class="n">ps</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="s2">&quot;cumulative&quot;</span><span class="p">)</span>
         <span class="n">ps</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span></div>
-
+        <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
 
 
 <div class="viewcode-block" id="profile_module">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.profile_module">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.profile_module">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">profile_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Profile all matching functions in a module.</span>
@@ -318,8 +294,6 @@
 
 
 
-<div class="viewcode-block" id="LineProfiler">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.LineProfiler">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LineProfiler</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Line-by-line profiler for detailed analysis.</span>
@@ -331,8 +305,6 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timings</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="LineProfiler.profile_lines">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.LineProfiler.profile_lines">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">profile_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Profile a function line by line.&quot;&quot;&quot;</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
@@ -341,7 +313,6 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="c1"># Get source lines</span>
             <span class="n">source_lines</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsourcelines</span><span class="p">(</span><span class="n">func</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">line_times</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="c1"># This is a simplified implementation</span>
             <span class="c1"># Real line profiling requires bytecode instrumentation</span>
@@ -360,11 +331,8 @@
 
             <span class="k">return</span> <span class="n">result</span>
 
-        <span class="k">return</span> <span class="n">wrapper</span></div>
+        <span class="k">return</span> <span class="n">wrapper</span>
 
-
-<div class="viewcode-block" id="LineProfiler.print_timings">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.LineProfiler.print_timings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">print_timings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print line timings for a function.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">func_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timings</span><span class="p">:</span>
@@ -376,14 +344,10 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total time: </span><span class="si">{</span><span class="n">timing</span><span class="p">[</span><span class="s1">&#39;total_time&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Source code:&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">timing</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-</div>
-
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Memory profiling utilities</span>
-<div class="viewcode-block" id="get_memory_usage">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.get_memory_usage">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_memory_usage</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get current memory usage in MB.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -392,12 +356,9 @@
         <span class="n">process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span> <span class="o">/</span> <span class="mi">1024</span> <span class="o">/</span> <span class="mi">1024</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
-
-<div class="viewcode-block" id="track_memory">
-<a class="viewcode-back" href="../../api/scitex_benchmark.profiler.html#scitex_benchmark.track_memory">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">track_memory</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -418,8 +379,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Memory usage for &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;:&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start: </span><span class="si">{</span><span class="n">start_mem</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;End: </span><span class="si">{</span><span class="n">end_mem</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Delta: </span><span class="si">{</span><span class="n">end_mem</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_mem</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span></div>
-
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Delta: </span><span class="si">{</span><span class="n">end_mem</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_mem</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
 </pre></div>
 
            </div>

@@ -46,9 +46,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../api/scitex_benchmark.html">scitex_benchmark</a></li>
-</ul>
 
         </div>
       </div>
@@ -90,14 +87,14 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 
 <div class="viewcode-block" id="BenchmarkResult">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkResult">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkResult">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BenchmarkResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Results from a benchmark run.&quot;&quot;&quot;</span>
@@ -120,7 +117,7 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="BenchmarkResult.to_dict">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkResult.to_dict">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkResult.to_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to dictionary for easy serialization.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -140,7 +137,7 @@
 
 
 <div class="viewcode-block" id="benchmark_function">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.benchmark_function">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.benchmark_function">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_function</span><span class="p">(</span>
     <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(),</span>
@@ -206,7 +203,7 @@
 
             <span class="n">process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
             <span class="n">memory_usage</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span> <span class="o">/</span> <span class="mi">1024</span> <span class="o">/</span> <span class="mi">1024</span>  <span class="c1"># MB</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">pass</span>
 
     <span class="k">return</span> <span class="n">BenchmarkResult</span><span class="p">(</span>
@@ -224,7 +221,7 @@
 
 
 <div class="viewcode-block" id="compare_implementations">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.compare_implementations">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.compare_implementations">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compare_implementations</span><span class="p">(</span>
     <span class="n">implementations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
     <span class="n">test_data_generator</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]],</span>
@@ -281,7 +278,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkSuite">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkSuite">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkSuite">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BenchmarkSuite</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Collection of benchmarks for a module or set of functions.&quot;&quot;&quot;</span>
 
@@ -291,7 +288,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="BenchmarkSuite.add_benchmark">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkSuite.add_benchmark">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkSuite.add_benchmark">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_benchmark</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
@@ -311,7 +308,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkSuite.run">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkSuite.run">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkSuite.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run all benchmarks in the suite.&quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -345,7 +342,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkSuite.save_results">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkSuite.save_results">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkSuite.save_results">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save benchmark results to CSV.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -353,7 +350,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkSuite.compare_with_baseline">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.BenchmarkSuite.compare_with_baseline">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.BenchmarkSuite.compare_with_baseline">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compare_with_baseline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">baseline_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare current results with baseline.&quot;&quot;&quot;</span>
         <span class="n">baseline</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">baseline_path</span><span class="p">)</span>
@@ -377,7 +374,7 @@
 
 
 <div class="viewcode-block" id="benchmark_module">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.benchmark_module">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.benchmark_module">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">benchmark_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;test_*&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BenchmarkSuite</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a benchmark suite for all matching functions in a module.</span>
@@ -416,8 +413,6 @@
 
 
 <span class="c1"># Pre-defined benchmark suites for common SciTeX modules</span>
-<div class="viewcode-block" id="create_io_benchmark_suite">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.create_io_benchmark_suite">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_io_benchmark_suite</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">BenchmarkSuite</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create benchmark suite for I/O operations.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -433,17 +428,14 @@
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,),</span> <span class="p">{}</span>
 
-    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scitex_io</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex_io</span>
     <span class="n">suite</span><span class="o">.</span><span class="n">add_benchmark</span><span class="p">(</span>
-        <span class="n">scitex</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">numpy_data_gen</span><span class="p">,</span> <span class="s2">&quot;load_numpy&quot;</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1MB&quot;</span><span class="p">,</span> <span class="s2">&quot;10MB&quot;</span><span class="p">,</span> <span class="s2">&quot;100MB&quot;</span><span class="p">]</span>
+        <span class="n">scitex_io</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">numpy_data_gen</span><span class="p">,</span> <span class="s2">&quot;load_numpy&quot;</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1MB&quot;</span><span class="p">,</span> <span class="s2">&quot;10MB&quot;</span><span class="p">,</span> <span class="s2">&quot;100MB&quot;</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">suite</span></div>
+    <span class="k">return</span> <span class="n">suite</span>
 
 
-
-<div class="viewcode-block" id="create_stats_benchmark_suite">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.create_stats_benchmark_suite">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_stats_benchmark_suite</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">BenchmarkSuite</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create benchmark suite for statistics operations.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -456,20 +448,19 @@
         <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">{</span><span class="s2">&quot;n_perm&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}</span>
 
-    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex_stats</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scitex_stats</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">scitex_stats</span>
     <span class="n">suite</span><span class="o">.</span><span class="n">add_benchmark</span><span class="p">(</span>
-        <span class="n">scitex</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">corr_test</span><span class="p">,</span>
+        <span class="n">scitex_stats</span><span class="o">.</span><span class="n">corr_test</span><span class="p">,</span>
         <span class="n">corr_data_gen</span><span class="p">,</span>
         <span class="s2">&quot;correlation_test&quot;</span><span class="p">,</span>
         <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1000_samples&quot;</span><span class="p">,</span> <span class="s2">&quot;10000_samples&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">suite</span></div>
-
+    <span class="k">return</span> <span class="n">suite</span>
 
 
 <div class="viewcode-block" id="run_all_benchmarks">
-<a class="viewcode-back" href="../../api/scitex_benchmark.benchmark.html#scitex_benchmark.run_all_benchmarks">[docs]</a>
+<a class="viewcode-back" href="../../api.html#scitex_benchmark.run_all_benchmarks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run_all_benchmarks</span><span class="p">(</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./benchmark_results&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
