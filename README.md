@@ -57,12 +57,23 @@ flowchart LR
 ## Quick Start
 
 ```python
-import scitex_benchmark as bm
+import scitex_benchmark as sb
 
-# Quick wall-clock + memory snapshot
-with bm.Profiler() as p:
-    work()
-print(p.summary())
+# Single-function benchmark
+result = sb.benchmark_function(
+    my_func,
+    args=(my_input,),
+    iterations=20,
+    warmup=2,
+)
+print(f"{result.function_name}: {result.mean_time:.3f}s ± {result.std_time:.3f}s")
+
+# Compare two implementations
+df = sb.compare_implementations(
+    implementations={"v1": impl_a, "v2": impl_b},
+    test_data_generator=lambda: ((input,), {}),
+)
+print(df)
 ```
 
 ## 1 Interfaces
@@ -73,22 +84,23 @@ print(p.summary())
 <br>
 
 ```python
-import scitex_benchmark as bm
+import scitex_benchmark as sb
 
-# Benchmark suite — time/memory across input sizes
-suite = bm.BenchmarkSuite("io")
+# Benchmark suite — time across input sizes
+suite = sb.BenchmarkSuite("io")
 suite.add_benchmark(my_func, gen_input, "name", sizes=["1MB", "10MB"])
 results = suite.run()
 
-# Runtime monitor — alerts when CPU/RAM/disk thresholds breached
-monitor = bm.RuntimeMonitor(cpu_threshold=80, mem_threshold=90)
-with monitor:
-    long_running_job()
+# Performance monitor — track CPU/RAM/error metrics over time
+monitor = sb.PerformanceMonitor()
+monitor.start()
+long_running_job()
+stats = monitor.get_stats()
 
-# Profiler — quick wall-clock + memory snapshot
-with bm.Profiler() as p:
-    work()
-print(p.summary())
+# Profiler decorator — cProfile instrumentation
+@sb.profile_function
+def hot_function(x):
+    return x ** 2
 ```
 
 </details>
