@@ -35,7 +35,7 @@ autodoc_default_options = {
 }
 
 # Heavy/optional deps mocked so RTD can build without installing them.
-autodoc_mock_imports = [""]
+autodoc_mock_imports = []
 
 autosummary_generate = True
 
